@@ -1,4 +1,4 @@
-FROM corilo/corems:base-mono-pythonnet AS base
+FROM corilo/corems:base-mono-pythonnet@sha256:8d78d409a54d7c10db720aae937c969aa050505ddc4e2f2fad2de75de074470b AS base
 WORKDIR /home/corems
 
 COPY corems/ /home/corems/corems
