@@ -1,10 +1,10 @@
 __author__ = "Yuri E. Corilo"
 __date__ = "Jun 24, 2019"
 
-from IsoSpecPy import IsoSpecPy
+import IsoSpecPy
 from numpy import isnan, power, exp, nextafter
-from pandas import DataFrame
 from scipy.stats import pearsonr, spearmanr, kendalltau
+import re
 
 from corems.encapsulation.constant import Atoms
 from corems.encapsulation.constant import Labels
@@ -579,7 +579,7 @@ class MolecularFormulaCalc:
         Parameters
         ----------
         formula_dict : dict
-            The dictionary of the molecular formula. Example: {'C':10, 'H', 20, 'O', 2}
+            The dictionary of the molecular formula. Example: {'C':10, 'H': 20, 'O':2}
         min_abundance : float
             The minimum abundance.
         current_abundance : float
@@ -599,104 +599,65 @@ class MolecularFormulaCalc:
 
 
         """
-             
-        #last update on 05-26-2020, Yuri E. Corilo 
-
-        # updated it to reflect min possible mass peak abundance
+            
+        # updated to use Isospecpy 2.2.1 on 01-04-2024, Christian Dewey 
         cut_off_to_IsoSpeccPy = 1-(1/ms_dynamic_range)
+
+        formula_string = ' '.join([k + str(n) for k,n in zip(list(formula_dict.keys()), list(formula_dict.values()))])
+
+        mfstring = formula_string.replace(" ",'')
+        iso = IsoSpecPy.IsoTotalProb(cut_off_to_IsoSpeccPy,mfstring, get_confs=True,charge=self.ion_charge )
         
-        #print("cut_off_to_IsoSpeccPy", cut_off_to_IsoSpeccPy, current_abundance, min_abundance, ms_dynamic_range)
-        #print(cut_off_to_IsoSpeccPy)
-        atoms_labels = (atom for atom in formula_dict.keys() if atom != Labels.ion_type and atom != 'H')
-       
-        atoms_count = []
-        masses_list_tuples = []
-        props_list_tuples = []
-        all_atoms_list = []
-        
-        for atom_label in atoms_labels:
-            
-            if not len(Atoms.isotopes.get(atom_label))>1:
-                'This atom_label has no heavy isotope'
-                atoms_count.append(formula_dict.get(atom_label))
-                mass = Atoms.atomic_masses.get(atom_label)
-                prop = Atoms.isotopic_abundance.get(atom_label)
-                masses_list_tuples.append([mass])
-                props_list_tuples.append([prop])
-                all_atoms_list.append(atom_label)
-                
-            else:
-                
-                isotopes_label_list = Atoms.isotopes.get(atom_label)[1]
-            
-                if len(isotopes_label_list) > 1:
-                    'This atom_label has two or more heavy isotope'
-                    isotopos_labels = [i for i in isotopes_label_list]
-                else:
-                    'This atom_label only has one heavy isotope'
-                    isotopos_labels = [isotopes_label_list[0]]
-                
-                #all_atoms_list.extend(isotopos_labels) 
-                isotopos_labels = [atom_label] + isotopos_labels
-                
-                all_atoms_list.extend(isotopos_labels)
-                
-                masses = [Atoms.atomic_masses.get(atom_label) for atom_label in isotopos_labels]
-                props = [Atoms.isotopic_abundance.get(atom_label) for atom_label in isotopos_labels]
-                
-                atoms_count.append(formula_dict.get(atom_label))
-                masses_list_tuples.append(masses)
-                props_list_tuples.append(props)
-        
-        iso = IsoSpecPy.IsoSpec(atoms_count,masses_list_tuples,props_list_tuples, cut_off_to_IsoSpeccPy)
-        
-        conf = iso.getConfs()
-        masses = conf[0]
-        probs = exp(conf[1])
-        molecular_formulas = conf[2]
-        #print('conf', conf)
-        #print('probs', conf[1])
-        
+        probs = [iso[i][1] for i in range(len(iso))]
+        molecular_formulas = [iso[i][2] for i in range(len(iso))]
+
         new_formulas = []
-        
+        element_list = formula_string.split(' ')
+
+        new_dict_keys = [re.sub(r'[0-9]', '', e) for e in element_list]
+        new_dict_keys = [k for k in new_dict_keys ]
+
         for isotopologue_index in range(len(iso)):
-            #skip_mono_isotopic 
-            
-            formula_list = molecular_formulas[isotopologue_index]
-            new_formula_dict = dict(zip(all_atoms_list, formula_list))
+
+            formula_tuple_list1 = molecular_formulas[isotopologue_index]
+            formula_tuple_list = [formula_tuple_list1[i] for i in range(len(formula_tuple_list1)) ]
+            new_formula_dict_stoi = dict(zip(new_dict_keys, formula_tuple_list))
+            keys_1 = [[mono] + Atoms.isotopes.get(mono)[1] for mono in new_dict_keys ]
+
+            new_formula_dict_keys = dict(zip(new_dict_keys, [[k for k in p if k !=None] for p in keys_1]))
+
+            def flatten(list):
+                flat_list = []
+                for l in list:
+                    flat_list += l
+                return flat_list
+
+            new_keys = flatten([new_formula_dict_keys.get(k) for k in new_dict_keys])
+            new_stoi = flatten([new_formula_dict_stoi.get(k) for k in new_dict_keys])
+
+            new_formula_dict = dict(zip(new_keys,new_stoi))
+
             new_formula_dict[Labels.ion_type] = formula_dict.get(Labels.ion_type)
+
             if formula_dict.get('H'):
                 new_formula_dict['H'] = formula_dict.get('H')
 
             new_formulas.append({x:y for x,y in new_formula_dict.items() if y!=0})
-        
+
         # formula_dict in new_formulas check if monoisotopic is being returned
         if new_formulas:# and formula_dict in new_formulas:
-            
-            #print(conf)    
-            #print(new_formulas)    
-            #print(atoms_count)
-            #print(all_atoms_list)
-            #print(masses_list_tuples)
-            #print(props_list_tuples)
             # find where monoisotopic is
-            index_mono = new_formulas.index(formula_dict)   
+            index_mono = new_formulas.index(formula_dict)
+
             # calculate ratio iso/mono
-            probs = list(probs/probs[index_mono])
-            
+            probs = [ p / probs[index_mono] for p in probs ]
+
             # delete the monoisotopic
             del probs[index_mono]
             del new_formulas[index_mono]
-            
-            #print('probs_exp', probs)
+
             for formulas, prob in zip(new_formulas, probs):
-                
+
                 theor_abundance = current_abundance* prob
                 if theor_abundance > min_abundance:
-                    #print(prob, theor_abundance, current_abundance)
                     yield (formulas, prob)
-            #return zip(new_formulas, probs )
-    
-        #else:
-        #    return []    
-    
