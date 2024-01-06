@@ -605,7 +605,9 @@ class MolecularFormulaCalc:
 
         formula_string = ' '.join([k + str(n) for k,n in zip(list(formula_dict.keys()), list(formula_dict.values()))])
 
-        mfstring = formula_string.replace(" ",'')
+        mfstring = formula_string.split('IonType')[0]
+        mfstring = mfstring.replace(" ",'')
+        print(mfstring)
         iso = IsoSpecPy.IsoTotalProb(cut_off_to_IsoSpeccPy,mfstring, get_confs=True,charge=self.ion_charge )
         
         probs = [iso[i][1] for i in range(len(iso))]

@@ -621,7 +621,6 @@ class PeakPicking:
             
             return mass[current_index], abund[current_index], peak_indexes
 
-
     def calc_centroid_legacy(self, mass, abund, freq):
         """ Legacy centroid calculation
         Deprecated - for deletion.
