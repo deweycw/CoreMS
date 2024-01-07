@@ -327,7 +327,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         self.cal_noise_threshold()
 
         self.find_peaks()
-        # do charge assignment here?
+        self.assign_charge_based_on_C_isotopes()
         self.reset_indexes()
 
         if self.mspeaks:
@@ -797,6 +797,8 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
     def assign_charge_based_on_C_isotopes(self):
         """Assigns charge to ms peaks if C isotopolgous detected. Tolerance for mass difference determined from resolving power. 
         """
+
+        print('assigning charges')
         peak_mzs = [mspeak.mz_exp for mspeak in self._mspeaks]
         mz_array = array([peak_mzs for i in range(len(peak_mzs))])
         mz_diff_array = mz_array - mz_array.T
@@ -804,30 +806,37 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         peak_res = [mspeak.resolving_power for mspeak in self._mspeaks]
         res_array = array([peak_res for i in range(len(peak_res))])
         fwhm_array = mz_array / res_array
-        error_array = fwhm_array / 2    # error is half peak width 
+        error_array = fwhm_array / 4    # error is half peak width 
         max_error_array = error_array + error_array.T   # account for error w/ both peaks in pair 
         pos_diff_inds = array(mz_diff_array>0)
 
         peak_abunds = [mspeak.abundance for mspeak in self._mspeaks]
         heavy_abunds_array = array([peak_abunds for i in range(len(peak_abunds))])
         light_abunds_array = heavy_abunds_array.T     
-        
+
         for charge in [2,1]:
             c_iso_mz_diff = (Atoms.atomic_masses['13C'] - Atoms.atomic_masses['C']) / charge
             mz_residual_array = mz_diff_array - c_iso_mz_diff
             mz_residual_array[pos_diff_inds] = abs(mz_residual_array[pos_diff_inds])
             candidate_inds = array(mz_residual_array<=max_error_array)
             candidate_inds[~pos_diff_inds] = False 
+            
 
-            max_heavy_abund_array = light_abunds_array  / Atoms.atomic_masses['C'] * Atoms.isotopic_abundance['13C']
+            max_heavy_abund_array = light_abunds_array * mz_array * charge / Atoms.atomic_masses['C'] * Atoms.isotopic_abundance['13C']
+
             abunds_candidates_inds = array(heavy_abunds_array<=max_heavy_abund_array)
-
-            peak_list_bool = candidate_inds[abunds_candidates_inds]
-            peak_list_inds = [i for i in range(len(peak_list_bool)) if (peak_list_bool[i] == True)]
-            
-            for i in peak_list_inds:
-                self._mspeaks[i].ion_charge = charge * MSParameters.mass_spectrum.polarity
-            
+            hits = where(abunds_candidates_inds & candidate_inds)
+            light_inds = hits[0]
+            heavy_inds = hits[1]
+            if len(hits[0])>0:
+                peak_list_inds = [(x,y) for x, y in zip(light_inds,heavy_inds) ]
+                print('peak_list_inds')
+                print(peak_list_inds)
+                for j in peak_list_inds:
+                    print('j',j,j[0],j[1])
+                    self._mspeaks[j[0]].ion_charge = charge * self.polarity
+                    self._mspeaks[j[1]].ion_charge = charge * self.polarity
+                    print(self.polarity,charge, self._mspeaks[j[1]].mz_exp - self._mspeaks[j[0]].mz_exp, (Atoms.atomic_masses['C'] - Atoms.atomic_masses['13C'])/charge)
 
     def change_kendrick_base_all_mspeaks(self, kendrick_dict_base):
         """Change the Kendrick base of all MSpeaks objects.
