@@ -238,7 +238,7 @@ class SearchMolecularFormulas:
 
         # ion charge for all the ion in the mass spectrum
         # under the current structure is possible to search for individual m/z but it takes longer than allow all the m/z to be search against
-        ion_charge = self.mass_spectrum_obj.polarity
+        ion_charge_list = [i * self.mass_spectrum_obj.polarity for i in [1,2]]
 
         # use to limit the calculation of possible isotopologues
         min_abundance = self.mass_spectrum_obj.min_abundance
@@ -257,7 +257,7 @@ class SearchMolecularFormulas:
         # split the database load to not blowout the memory
         # TODO add to the settings
 
-        def run():
+        def run(ion_charge: int):
 
             for classe_chunk in chunks(classes, self.mass_spectrum_obj.molecular_search_settings.db_chunk_size): 
 
@@ -279,7 +279,7 @@ class SearchMolecularFormulas:
 
                         ion_type = Labels.protonated_de_ion
 
-                        pbar.set_description_str(desc="Started molecular formula search for class %s, (de)protonated " % classe_str, refresh=True)
+                        pbar.set_description_str(desc="Started molecular formula search for class %s, (de)protonated, charge of %s " % (classe_str,ion_charge), refresh=True)
 
                         candidate_formulas = dict_res.get(ion_type).get(classe_str)
 
@@ -290,7 +290,7 @@ class SearchMolecularFormulas:
 
                     if self.mass_spectrum_obj.molecular_search_settings.isRadical:
 
-                        pbar.set_description_str(desc="Started molecular formula search for class %s, radical " % classe_str, refresh=True)
+                        pbar.set_description_str(desc="Started molecular formula search for class %s, radical, charge of %s " % (classe_str,ion_charge), refresh=True)
 
                         ion_type = Labels.radical_ion
 
@@ -304,7 +304,7 @@ class SearchMolecularFormulas:
                     # this code does not support H exchance by halogen atoms
                     if self.mass_spectrum_obj.molecular_search_settings.isAdduct:
 
-                        pbar.set_description_str(desc="Started molecular formula search for class %s, adduct " % classe_str, refresh=True)
+                        pbar.set_description_str(desc="Started molecular formula search for class %s, adduct, charge of %s " % (classe_str,ion_charge), refresh=True)
 
                         ion_type = Labels.adduct_ion
                         dict_atoms_formulas =  dict_res.get(ion_type)
@@ -317,7 +317,9 @@ class SearchMolecularFormulas:
                                 self.run_search(ms_peaks, candidate_formulas,
                                                 min_abundance, ion_type, ion_charge, adduct_atom=adduct_atom)
 
-        run()
+        for ion_charge in ion_charge_list:
+            run(ion_charge)
+
         self.sql_db.close()
 
     def search_mol_formulas(self, possible_formulas_list: List[MolecularFormula], ion_type:str, 

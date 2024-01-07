@@ -567,7 +567,7 @@ class MolecularLookupDictSettings:
 
         self.min_mz = 50
 
-        self.max_mz = 1200
+        self.max_mz = 1600
 
         self.min_dbe = 0
 

@@ -830,13 +830,9 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
             heavy_inds = hits[1]
             if len(hits[0])>0:
                 peak_list_inds = [(x,y) for x, y in zip(light_inds,heavy_inds) ]
-                print('peak_list_inds')
-                print(peak_list_inds)
                 for j in peak_list_inds:
-                    print('j',j,j[0],j[1])
                     self._mspeaks[j[0]].ion_charge = charge * self.polarity
                     self._mspeaks[j[1]].ion_charge = charge * self.polarity
-                    print(self.polarity,charge, self._mspeaks[j[1]].mz_exp - self._mspeaks[j[0]].mz_exp, (Atoms.atomic_masses['C'] - Atoms.atomic_masses['13C'])/charge)
 
     def change_kendrick_base_all_mspeaks(self, kendrick_dict_base):
         """Change the Kendrick base of all MSpeaks objects.
