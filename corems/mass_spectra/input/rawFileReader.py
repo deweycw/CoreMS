@@ -126,7 +126,7 @@ class ThermoBaseClass:
             file_path = file_location
 
         self.iRawDataPlus = RawFileReaderAdapter.FileFactory(str(file_path))
-        print((self.iRawDataPlus).IsOpen)
+        #print((self.iRawDataPlus).IsOpen)
 
 
         if not self.iRawDataPlus.IsOpen:
