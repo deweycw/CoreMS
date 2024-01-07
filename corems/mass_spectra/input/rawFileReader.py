@@ -152,7 +152,6 @@ class ThermoBaseClass:
         Initialize the LCMSParameters object.
         """
         self._parameters = LCMSParameters()
-        print('yep')
 
     @property
     def parameters(self) -> LCMSParameters:
