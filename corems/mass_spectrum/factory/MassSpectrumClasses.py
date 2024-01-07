@@ -829,7 +829,10 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
             heavy_inds = hits[1]
             if len(hits[0])>0:
                 peak_list_inds = [(x,y) for x, y in zip(light_inds,heavy_inds) ]
+<<<<<<< HEAD
 
+=======
+>>>>>>> e33f083c (added mf search for double charge ions)
                 for j in peak_list_inds:
                     self._mspeaks[j[0]].ion_charge = charge * self.polarity
                     self._mspeaks[j[1]].ion_charge = charge * self.polarity
