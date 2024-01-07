@@ -821,7 +821,6 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
             candidate_inds = array(mz_residual_array<=max_error_array)
             candidate_inds[~pos_diff_inds] = False
 
-
             max_heavy_abund_array = light_abunds_array * mz_array * charge / Atoms.atomic_masses['C'] * Atoms.isotopic_abundance['13C']
 
             abunds_candidates_inds = array(heavy_abunds_array<=max_heavy_abund_array)
@@ -830,6 +829,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
             heavy_inds = hits[1]
             if len(hits[0])>0:
                 peak_list_inds = [(x,y) for x, y in zip(light_inds,heavy_inds) ]
+
                 for j in peak_list_inds:
                     self._mspeaks[j[0]].ion_charge = charge * self.polarity
                     self._mspeaks[j[1]].ion_charge = charge * self.polarity
