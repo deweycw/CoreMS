@@ -604,15 +604,17 @@ class MolecularFormulaCalc:
         cut_off_to_IsoSpeccPy = 1-(1/ms_dynamic_range)
 
         formula_string = ' '.join([k + str(n) for k,n in zip(list(formula_dict.keys()), list(formula_dict.values()))])
-        formula_string = formula_string.split('IonType')[0]
-        mfstring = formula_string.replace(" ",'')
+        spaced_str = formula_string.split('IonType')[0].strip()
+        mfstring = spaced_str.replace(" ",'')
+
         iso = IsoSpecPy.IsoTotalProb(cut_off_to_IsoSpeccPy,mfstring, get_confs=True,charge=self.ion_charge )
         
         probs = [iso[i][1] for i in range(len(iso))]
         molecular_formulas = [iso[i][2] for i in range(len(iso))]
 
         new_formulas = []
-        element_list = formula_string.split(' ')
+        element_list = spaced_str.split(' ')
+
 
         new_dict_keys = [re.sub(r'[0-9]', '', e) for e in element_list]
         new_dict_keys = [k for k in new_dict_keys ]
@@ -622,11 +624,9 @@ class MolecularFormulaCalc:
             formula_tuple_list1 = molecular_formulas[isotopologue_index]
             formula_tuple_list = [formula_tuple_list1[i] for i in range(len(formula_tuple_list1)) ]
             new_formula_dict_stoi = dict(zip(new_dict_keys, formula_tuple_list))
-            
-            for mono in new_dict_keys:
-                print( Atoms.isotopes.get(mono))
-            keys_1 = [[mono] + Atoms.isotopes.get(mono)[1] for mono in new_dict_keys ]
 
+            keys_1 = [[mono] + Atoms.isotopes.get(mono)[1] for mono in new_dict_keys ]
+           
             new_formula_dict_keys = dict(zip(new_dict_keys, [[k for k in p if k !=None] for p in keys_1]))
 
             def flatten(list):
