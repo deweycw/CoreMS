@@ -1,3 +1,6 @@
+mono_crash*
+cd-test.py
+isospec_test_env/
 env/
 venv/ 
 test_env/ 

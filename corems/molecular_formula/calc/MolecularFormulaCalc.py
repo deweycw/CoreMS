@@ -604,7 +604,7 @@ class MolecularFormulaCalc:
         cut_off_to_IsoSpeccPy = 1-(1/ms_dynamic_range)
 
         formula_string = ' '.join([k + str(n) for k,n in zip(list(formula_dict.keys()), list(formula_dict.values()))])
-
+        formula_string = formula_string.split('IonType')[0]
         mfstring = formula_string.replace(" ",'')
         iso = IsoSpecPy.IsoTotalProb(cut_off_to_IsoSpeccPy,mfstring, get_confs=True,charge=self.ion_charge )
         
@@ -622,6 +622,9 @@ class MolecularFormulaCalc:
             formula_tuple_list1 = molecular_formulas[isotopologue_index]
             formula_tuple_list = [formula_tuple_list1[i] for i in range(len(formula_tuple_list1)) ]
             new_formula_dict_stoi = dict(zip(new_dict_keys, formula_tuple_list))
+            
+            for mono in new_dict_keys:
+                print( Atoms.isotopes.get(mono))
             keys_1 = [[mono] + Atoms.isotopes.get(mono)[1] for mono in new_dict_keys ]
 
             new_formula_dict_keys = dict(zip(new_dict_keys, [[k for k in p if k !=None] for p in keys_1]))
