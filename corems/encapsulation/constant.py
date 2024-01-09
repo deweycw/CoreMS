@@ -1,8 +1,8 @@
 class Labels: #pragma: no cover
     """ Class for Labels used in CoreMS
-    
+
     These labels are used to define:
-    * types of columns in plaintext data inputs, 
+    * types of columns in plaintext data inputs,
     * types of data/mass spectra
     * types of assignment for ions
 
@@ -22,7 +22,7 @@ class Labels: #pragma: no cover
     thermo_centroid = 'Thermo_Centroid'
     corems_centroid = 'CoreMS_Centroid'
     gcms_centroid = 'Thermo_Centroid'
-    
+
     unassigned = 'unassigned'
 
     radical_ion = 'RADICAL'
@@ -37,13 +37,13 @@ class Labels: #pragma: no cover
                           'de-protonated': 'DE_OR_PROTONATED',
                           'radical': 'RADICAL',
                           'adduct': 'ADDUCT'}
-    
+
 class Atoms: #pragma: no cover
     """ Class for Atoms in CoreMS
 
-    This class includes key properties of atoms (and the electron) and isotopes, including their exact masses, relative abundances, and covalences. 
+    This class includes key properties of atoms (and the electron) and isotopes, including their exact masses, relative abundances, and covalences.
     It also associates which isotopes are for the same element, and provides an ordering of elements.
-    
+
     References
     ----------
 
@@ -389,7 +389,7 @@ class Atoms: #pragma: no cover
                      '252Es': 252.082980,
                      '257Fm': 257.0951061,
                      '258Md': 258.0984315,
-                     '260Md': 260.10365, 
+                     '260Md': 260.10365,
                      '259No': 259.10103,
                      '262Lr': 262.10961,
                      '267Rf': 267.12179,
