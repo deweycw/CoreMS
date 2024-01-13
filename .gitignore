@@ -1,3 +1,5 @@
+mono_crash*
+assign-scripts/
 cd-test.py
 env/
 venv/ 
