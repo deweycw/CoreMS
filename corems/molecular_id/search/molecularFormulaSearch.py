@@ -267,7 +267,6 @@ class SearchMolecularFormulas:
         # only query the database for formulas with the nominal m/z matching the mass spectrum data
         # default m/z overlay is m/z 0.3 unit
         # needs to improve to bin by mass defect instead, faster db creation and faster search execution time
-        # needs to improve to bin by mass defect instead, faster db creation and faster search execution time
         #nominal_mzs = self.mass_spectrum_obj.nominal_mz
 
         nominal_mzs = list(set(i.nominal_mz_exp for i in ms_peaks))
