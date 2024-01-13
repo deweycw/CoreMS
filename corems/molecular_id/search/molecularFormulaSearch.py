@@ -86,7 +86,6 @@ class SearchMolecularFormulas:
 
             self.ion_charge = ion_charge
 
-
         if not sql_db:
 
             self.sql_db = MolForm_SQL(url=mass_spectrum_obj.molecular_search_settings.url_database)
