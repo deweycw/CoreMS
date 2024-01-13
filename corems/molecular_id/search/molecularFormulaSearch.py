@@ -70,6 +70,7 @@ class SearchMolecularFormulas:
 
     """
 
+
     def __init__(self, mass_spectrum_obj, sql_db=None, first_hit : bool=False, find_isotopologues : bool=True, ion_charge = None):
 
         self.first_hit = first_hit
@@ -85,6 +86,7 @@ class SearchMolecularFormulas:
         else:
 
             self.ion_charge = ion_charge
+
 
         if not sql_db:
 
