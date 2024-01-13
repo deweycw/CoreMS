@@ -82,7 +82,11 @@ class SearchMolecularFormulas:
 
             self.ion_charge = self.mass_spectrum_obj.polarity
 
-        
+        else:
+
+            self.ion_charge = ion_charge
+
+
         if not sql_db:
 
             self.sql_db = MolForm_SQL(url=mass_spectrum_obj.molecular_search_settings.url_database)
@@ -254,9 +258,9 @@ class SearchMolecularFormulas:
 
         
         # use to limit the calculation of possible isotopologues
-        print(len(ms_peaks))
+        
         ms_peaks = [peak for peak in ms_peaks if peak.ion_charge == ion_charge]
-        print(len(ms_peaks))
+        
         min_abundance = self.mass_spectrum_obj.min_abundance
 
         # only query the database for formulas with the nominal m/z matching the mass spectrum data
@@ -275,6 +279,7 @@ class SearchMolecularFormulas:
 
         def run():
             print('ion charge: %s' %ion_charge)
+            print('number of peaks: %s' %len(ms_peaks))
             for classe_chunk in chunks(classes, self.mass_spectrum_obj.molecular_search_settings.db_chunk_size): 
 
                 classes_str_list = [class_tuple[0] for class_tuple in classe_chunk]
