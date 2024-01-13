@@ -257,9 +257,15 @@ class SearchMolecularFormulas:
 
 
         # use to limit the calculation of possible isotopologues
+<<<<<<< HEAD
 
         ms_peaks = [peak for peak in ms_peaks if peak.ion_charge == ion_charge]
 
+=======
+
+        ms_peaks = [peak for peak in ms_peaks if peak.ion_charge == ion_charge]
+
+>>>>>>> cf2154ee (added else statement, removed troubleshooting print commands, added print command w/ number of peaks of specified charge)
         min_abundance = self.mass_spectrum_obj.min_abundance
 
         # only query the database for formulas with the nominal m/z matching the mass spectrum data
