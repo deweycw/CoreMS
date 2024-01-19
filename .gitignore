@@ -1,7 +1,7 @@
 mono_crash*
 cd-test.py
-isospec_test_env/
-env/
+assign-scripts/
+env*/
 venv/ 
 test_env/ 
 venv310/
