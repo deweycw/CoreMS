@@ -389,8 +389,16 @@ class _MSPeak(MSPeakCalculation):
         ):
             return self.molecular_formula_earth_filter()
 
-        elif self._ms_parent.molecular_search_settings.score_method == "prob_score":
+        elif (self._ms_parent.molecular_search_settings.score_method
+              == "prob_score"
+        ):
             return self.molecular_formula_highest_prob_score()
+
+        elif (
+            self._ms_parent.molecular_search_settings.score_method
+            == "all_candidates"
+        ):
+            return self.molecular_formulas
         else:
             raise TypeError(
                 "Unknown score method selected: % s, \
@@ -398,7 +406,6 @@ class _MSPeak(MSPeakCalculation):
                             encapsulation.settings.molecular_id.MolecularIDSettings.MolecularFormulaSearchSettings",
                 self._ms_parent.parameters.molecular_search.score_method,
             )
-
 
 class ICRMassPeak(_MSPeak):
     """A class representing a peak in an ICR mass spectrum.
