@@ -398,7 +398,6 @@ class MolecularFormulaBase(MolecularFormulaCalc):
         """
         
         for mf in self._cal_isotopologues(self._d_molecular_formula, min_abundance, current_mono_abundance, dynamic_range ):
-             
             yield MolecularFormulaIsotopologue(*mf, current_mono_abundance, self.ion_charge)
     
     def atoms_qnt(self,atom): 
@@ -570,6 +569,7 @@ class MolecularFormulaIsotopologue(MolecularFormulaBase):
         super().__init__(_d_molecular_formula,  ion_charge)
         #prob_ratio is relative to the monoisotopic peak p_isotopologue/p_mono_isotopic
         
+
         self.prob_ratio = prob_ratio
         
         self.abundance_calc = mono_abundance * prob_ratio
@@ -582,7 +582,7 @@ class MolecularFormulaIsotopologue(MolecularFormulaBase):
         # parent mass spectrum peak obj instance
         self._mspeak_parent = mspeak_parent
 
-    
+
     @property
     def area_error(self):
         return self._calc_area_error()

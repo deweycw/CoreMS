@@ -164,7 +164,7 @@ class SearchMolecularFormulas:
         search_molfrom = SearchMolecularFormulaWorker(find_isotopologues=self.find_isotopologues)
 
         for ms_peak in mspeaks:
-
+            
             # already assigned a molecular formula
             if self.first_hit:
 
@@ -667,8 +667,7 @@ class SearchMolecularFormulaWorker:
 
                     #    molecular_formula = deepcopy(possible_formula)
 
-                    #else:
-
+                #else:
                     formula_dict = possible_formula.to_dict()
                     # create the molecular formula obj to be stored
                     if possible_mf_class:
@@ -704,20 +703,21 @@ class SearchMolecularFormulaWorker:
 
                                 if min_ppm_error <= error <= max_ppm_error:
 
+
                                     # need to define error distribution for abundance measurements
 
                                     # if mass_spectrum_obj.is_centroid:
 
-                                    abundance_error = self.calc_error(isotopologue_formula.abundance_calc, ms_peak_iso.abundance,method='perc')
-
+                                    abundance_error = self.calc_error( ms_peak_iso.abundance,isotopologue_formula.abundance_calc,method='perc')  #perc
+                                    #return ((mz_exp - mz_calc) / mz_calc) * multi_factor
                                     # area_error = self.calc_error(ms_peak.area, ms_peak_iso.area, method='perc')
 
                                     # margin of error was set empirically/ needs statistical calculation
                                     #  of margin of error for the measurement of the abundances
+
                                     if min_abun_error <= abundance_error <= max_abun_error:
 
                                         # update the error
-
                                         self.set_last_error(error, mass_spectrum_obj)
 
                                         # isotopologue_formula.mz_error = error
