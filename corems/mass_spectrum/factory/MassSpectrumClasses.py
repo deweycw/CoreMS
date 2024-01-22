@@ -1047,7 +1047,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
             if ax is None:
                 ax = plt.gca()
 
-            ax.plot(self.mz_exp_profile, self.abundance_profile, color="green",label="Spectrum")
+            ax.plot(self.mz_exp_profile, self.abundance_profile, color="C1",label="Spectrum")
             ax.plot(x, (baseline, baseline), color="yellow",label="Baseline Noise")
             ax.plot(x, y, color="red",label="Noise Threshold")
 
@@ -1058,8 +1058,8 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
             ax.axes.spines['top'].set_visible(False)
             ax.axes.spines['right'].set_visible(False)
 
-            ax.get_yaxis().set_visible(False)
-            ax.spines['left'].set_visible(False)
+            #ax.get_yaxis().set_visible(False)
+            #ax.spines['left'].set_visible(False)
             if legend:
                 ax.legend()
 

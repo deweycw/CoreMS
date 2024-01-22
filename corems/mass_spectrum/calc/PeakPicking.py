@@ -382,7 +382,7 @@ class PeakPicking:
         peak_derivative_threshold = self.mspeaks_settings.peak_derivative_threshold
         max_abun = max(abund)
         peak_height_diff = lambda hi, li : ((abund[hi] - abund[li]) / max_abun ) * 100
-                    
+        
         domain = mass
         signal = abund
         len_signal = len(signal)
@@ -451,7 +451,7 @@ class PeakPicking:
 
         elif noise_threshold_method == 'signal_noise':
 
-            abundance_threshold = self.settings.s2n_threshold
+            abundance_threshold = self.settings.noise_threshold_min_s2n
             factor = self.baseline_noise_std
 
         elif noise_threshold_method == "relative_abundance":

@@ -115,7 +115,7 @@ class NoiseThresholdCalc:
 
                     max_sn = self.abundance_profile.max()/self.baseline_noise_std
 
-                    normalized_threshold = (self.abundance_profile.max() * self.settings.s2n_threshold )/max_sn
+                    normalized_threshold = (self.abundance_profile.max() * self.settings.noise_threshold_min_s2n )/max_sn
                     y = (normalized_threshold, normalized_threshold)
 
                 elif self.settings.noise_threshold_method == "relative_abundance":
@@ -173,7 +173,6 @@ class NoiseThresholdCalc:
 
             min_mz_noise = self.settings.noise_min_mz
             max_mz_noise = self.settings.noise_max_mz
-
         if min_mz_noise < min_mz_whole_ms:
             min_mz_noise = min_mz_whole_ms
 
@@ -305,16 +304,29 @@ class NoiseThresholdCalc:
 
             # calculate a histogram of the log10 of the abundance data
             hist_values = histogram(log10(tmp_abundance),bins=self.settings.noise_threshold_log_nsigma_bins) 
+
             #find the apex of this histogram
             maxvalidx = where(hist_values[0] == max(hist_values[0]))
             # get the value of this apex (note - still in log10 units)
             log_sigma = hist_values[1][maxvalidx]
+            
             # If the histogram had more than one maximum frequency bin, we need to reduce that to one entry
             if len(log_sigma)>1:
                 log_sigma = average(log_sigma)
+
             ## To do : check if aFT or mFT and adjust method
             noise_mid = 10**log_sigma
             noise_1std = noise_mid*self.settings.noise_threshold_log_nsigma_corr_factor #for mFT 0.463
+            
+            import matplotlib.pyplot as plt 
+            '''fig, ax = plt.subplots()
+            ax.hist(log10(tmp_abundance), density=True, bins=self.settings.noise_threshold_log_nsigma_bins)  # density=False would make counts
+            ax.axvline(log_sigma[0] ,color = 'red')
+            ax.axvline(log_sigma[0]+log10(noise_1std[0])  ,color = 'C1')
+            ax.axvline(log_sigma[0]-log10(noise_1std[0])  ,color = 'C1')
+            ax.set_ylabel('Probability')
+            ax.set_xlabel('Log10 I')
+            plt.show()'''
             return float(noise_mid), float(noise_1std)
 
     def run_noise_threshold_calc(self):
