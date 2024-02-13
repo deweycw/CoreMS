@@ -1,0 +1,3 @@
+[submodule "assign-scripts"]
+	path = assign-scripts
+	url = https://github.com/deweycw/CoreMS-assign.git
