@@ -1,3 +1,6 @@
-[submodule "assign-scripts"]
-	path = assign-scripts
-	url = https://github.com/deweycw/CoreMS-assign.git
+[submodule "assign/som-dom"]
+	path = assign/som-dom
+	url = https://github.com/deweycw/redox-DOM.git
+[submodule "assign/mzwindow"]
+	path = assign/mzwindow
+	url = https://github.com/deweycw/mzwindow.git

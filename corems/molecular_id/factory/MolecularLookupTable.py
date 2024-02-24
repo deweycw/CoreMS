@@ -742,60 +742,49 @@ class MolecularCombinations:
 
             total_hetero_valence = 0
 
-            if HAS_OTHER_HETERO:
+        if HAS_OTHER_HETERO:
 
-                remaining_hetero_valence = total_hetero_valence % 2
+            remaining_hetero_valence = total_hetero_valence % 2
 
-            else:
+        else:
 
-                remaining_hetero_valence = 0
+            remaining_hetero_valence = 0
 
-            
-            if HAS_NITROGEN and not HAS_OTHER_HETERO:
+        
+        if HAS_NITROGEN and not HAS_OTHER_HETERO:
 
-                number_of_n = class_dict.get('N')
-                remaining_n = number_of_n % 2
+            number_of_n = class_dict.get('N')
+            remaining_n = number_of_n % 2
 
-            elif HAS_NITROGEN and HAS_OTHER_HETERO:
+        elif HAS_NITROGEN and HAS_OTHER_HETERO:
 
-                number_of_n = class_dict.get('N') 
-                remaining_n = (number_of_n + remaining_hetero_valence )% 2 
+            number_of_n = class_dict.get('N') 
+            remaining_n = (number_of_n + remaining_hetero_valence )% 2 
 
-            elif HAS_OTHER_HETERO and not HAS_NITROGEN:
+        elif HAS_OTHER_HETERO and not HAS_NITROGEN:
 
-                remaining_n = remaining_hetero_valence
+            remaining_n = remaining_hetero_valence
 
-            else:
+        else:
 
-                remaining_n = -1
+            remaining_n = -1
 
-            if remaining_n > 0.0:
+        if remaining_n > 0.0:
 
-                if HAS_NITROGEN or HAS_OTHER_HETERO:
+            if HAS_NITROGEN or HAS_OTHER_HETERO:
 
-                    if TEM_HALOGEN:
-                        if remaining_halogen == 0:
-                            return 'odd'
-                        else:
-                            return 'even'
-                    
-                    else:
+                if TEM_HALOGEN:
+                    if remaining_halogen == 0:
                         return 'odd'
-
-            elif remaining_n == 0.0:
-
-                if HAS_NITROGEN or HAS_OTHER_HETERO:
-
-                    if TEM_HALOGEN:
-                        if remaining_halogen == 0:
-                            return 'even'
-                        else:
-                            return 'odd'
-                    
                     else:
                         return 'even'
-                    
-            else:
+                
+                else:
+                    return 'odd'
+
+        elif remaining_n == 0.0:
+
+            if HAS_NITROGEN or HAS_OTHER_HETERO:
 
                 if TEM_HALOGEN:
                     if remaining_halogen == 0:
@@ -805,6 +794,17 @@ class MolecularCombinations:
                 
                 else:
                     return 'even'
+                
+        else:
+
+            if TEM_HALOGEN:
+                if remaining_halogen == 0:
+                    return 'even'
+                else:
+                    return 'odd'
+            
+            else:
+                return 'even'
             
             
 
