@@ -318,7 +318,7 @@ class NoiseThresholdCalc:
             noise_mid = 10**log_sigma
             noise_1std = noise_mid*self.settings.noise_threshold_log_nsigma_corr_factor #for mFT 0.463
             
-            import matplotlib.pyplot as plt 
+            '''import matplotlib.pyplot as plt 
             fig, ax = plt.subplots()
             ax.hist(log10(tmp_abundance), density=True, bins=self.settings.noise_threshold_log_nsigma_bins)  # density=False would make counts
             #ax.axvline(log10(noise_mid) ,color = 'black',linestyle='dashed')
@@ -329,7 +329,7 @@ class NoiseThresholdCalc:
             ax.set_xlabel('Log Intensity')
             import seaborn as sns
             sns.despine()
-            plt.show()
+            plt.show()'''
             return float(noise_mid), float(noise_1std)
 
     def run_noise_threshold_calc(self):
