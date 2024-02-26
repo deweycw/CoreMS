@@ -323,7 +323,7 @@ class MassSpecPeakSetting:
 
     peak_height_max_percent: float = 10  # 1-100 % used for baseline detection
 
-    legacy_resolving_power: bool = True # Use the legacy (CoreMS v1) resolving power calculation (True)
+    legacy_resolving_power: bool = False # Use the legacy (CoreMS v1) resolving power calculation (True)
     
     def __post_init__(self):
 
