@@ -87,6 +87,8 @@ class HighResMassSpecExport(Thread):
 
         # collect all assigned atoms and order them accordingly to the Atoms.atoms_order list
         self.atoms_order_list = self.get_all_used_atoms_in_order(self.mass_spectrum)
+        
+        self.max_isos = 0
 
         self._init_columns()
 
@@ -161,8 +163,14 @@ class HighResMassSpecExport(Thread):
 
     def get_pandas_df(self):
         """Returns the mass spectrum data as a pandas DataFrame."""
-        columns = self.columns_label + self.get_all_used_atoms_in_order(self.mass_spectrum)
+        #nisos = [s for s in range(self.max_isos)]
+
         dict_data_list = self.get_list_dict_data(self.mass_spectrum)
+        if self.max_isos > 0:
+            isos_lbl = ['Expected Isotopologue ' + str(n) for n in range(1,self.max_isos+1)]
+        else:
+            isos_lbl = [None]
+        columns = self.columns_label + self.get_all_used_atoms_in_order(self.mass_spectrum) + isos_lbl
         df = DataFrame(dict_data_list, columns=columns)
         df.name = self.output_file
         return df
@@ -574,7 +582,19 @@ class HighResMassSpecExport(Thread):
                 if atom in formula_dict.keys():
                     dict_result[atom] = formula_dict.get(atom)
 
+            if len(mformula.expected_isotopologues) > 0:
+                i=1
+                for e_iso in mformula.expected_isotopologues:
+                    
+                    dk ='Expected Isotopologue %s' %i
+                    dict_result[dk] = e_iso.string
+                    if i > self.max_isos:
+                        self.max_isos = i
+                        print(self.max_isos)
+                    i=i+1
+           
             dict_data_list.append(dict_result)
+
 
         score_methods = mass_spectrum.molecular_search_settings.score_methods
         selected_score_method = mass_spectrum.molecular_search_settings.output_score_method
@@ -665,5 +685,5 @@ class HighResMassSpecExport(Thread):
         # remove duplicated add_match data possibly introduced on the output_score_filter step
         res = []
         [res.append(x) for x in dict_data_list if x not in res]
-
+        
         return res
