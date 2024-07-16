@@ -232,6 +232,7 @@ class MolecularFormulaCalc:
         """
         
         # predicted std not set, using 0.3
+        
         if not self._mspeak_parent.predicted_std: self._mspeak_parent.predicted_std = 1.66
         
         #print( self._mspeak_parent.predicted_std)
@@ -392,9 +393,12 @@ class MolecularFormulaCalc:
                 if mf._mspeak_parent:
                     #stores mspeak abundance
                     accumulated_mz_score.append(mf.mz_error_score)
-                else:
+                elif mf.abundance_calc > (MSParameters.molecular_search.iso_sn_penalty_threshold * MSParameters.mass_spectrum.noise_threshold_log_nsigma * self._mspeak_parent._ms_parent.baseline_noise_std):
+                    #else:
                     # fill missing mz with abundance 0 and mz error score of 0
                     accumulated_mz_score.append(0.0)
+                #else:
+                #    print(mf.string)
 
         average_mz_score = sum(accumulated_mz_score)/len(accumulated_mz_score)
         
@@ -615,6 +619,7 @@ class MolecularFormulaCalc:
 
         # updated it to reflect min possible mass peak abundance
         cut_off_to_IsoSpeccPy = 1-(1/ms_dynamic_range)
+        #print(cut_off_to_IsoSpeccPy)
         
         #print("cut_off_to_IsoSpeccPy", cut_off_to_IsoSpeccPy, current_abundance, min_abundance, ms_dynamic_range)
         #print(cut_off_to_IsoSpeccPy)
@@ -725,5 +730,36 @@ class MolecularFormulaCalc:
             #return zip(new_formulas, probs )
     
         #else:
-        #    return []    
-    
+        #    return [] 
+        #    
+    def _get_missing_isotopologues(self):
+        """returns list of missing isotopologues."""
+        if self.is_isotopologue:
+            # confidence of isotopologue is pure mz error 
+            # TODO add more features here 
+            
+            mformula_index = self.mono_isotopic_formula_index
+            mspeak_index = self.mspeak_index_mono_isotopic
+
+            mspeak = self._mspeak_parent._ms_parent[mspeak_index]
+            
+            expected_isotopologues = mspeak[mformula_index].expected_isotopologues
+
+        else:
+            
+            expected_isotopologues = self.expected_isotopologues
+            # has isotopologues based on current dinamic range
+        
+        
+        if expected_isotopologues:
+            missing_isos = []
+            for mf in expected_isotopologues:
+                # molecular formula has been assigned to a peak
+                if mf._mspeak_parent:
+                    continue
+                else:
+                    # fill missing mz with abundance 0 and mz error score of 0
+                    #print(mf.mz_calc, mf.string, mf.abundance_calc)
+                    missing_isos.append(mf)
+
+        return missing_isos

@@ -754,6 +754,8 @@ class MolecularFormulaSearchSettings:
 
     output_min_score: float = 0.1
 
+    iso_sn_penalty_threshold: float = 2.0
+
     # depending on the polarity mode it looks for [M].+ , [M].-
     # query and automatically compile add entry if it doesn't exist
 

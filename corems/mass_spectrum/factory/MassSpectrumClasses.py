@@ -550,6 +550,10 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
     @property
     def min_abundance(self):
         """Return the minimum abundance value of the mass spectrum."""
+
+        #if self.settings.noise_threshold_method == 'log':
+        #    return 10000 #min([mspeak.abundance for mspeak in self.mspeaks if mspeak.abundance > self.baseline_noise_std * self.settings.noise_threshold_log_nsigma])
+        #else:
         return min([mspeak.abundance for mspeak in self.mspeaks])
 
     # takes too much cpu time 

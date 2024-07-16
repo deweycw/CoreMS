@@ -168,9 +168,13 @@ class HighResMassSpecExport(Thread):
         dict_data_list = self.get_list_dict_data(self.mass_spectrum)
         if self.max_isos > 0:
             isos_lbl = ['Expected Isotopologue ' + str(n) for n in range(1,self.max_isos+1)]
+            abunds_lbl = ['Expected Abundance ' + str(n) for n in range(1,self.max_isos+1)]
         else:
             isos_lbl = [None]
-        columns = self.columns_label + self.get_all_used_atoms_in_order(self.mass_spectrum) + isos_lbl
+            abunds_lbl = [None]
+        exp_lbls = [(i,a) for i, a in zip(isos_lbl, abunds_lbl)]
+        exp_lbls = [item for t in exp_lbls for item in t]
+        columns = self.columns_label + self.get_all_used_atoms_in_order(self.mass_spectrum) + exp_lbls
         df = DataFrame(dict_data_list, columns=columns)
         df.name = self.output_file
         return df
@@ -588,6 +592,8 @@ class HighResMassSpecExport(Thread):
                     
                     dk ='Expected Isotopologue %s' %i
                     dict_result[dk] = e_iso.string
+                    da = 'Expected Abundance %s' %i
+                    dict_result[da] = e_iso.abundance_calc
                     if i > self.max_isos:
                         self.max_isos = i
                         print(self.max_isos)
