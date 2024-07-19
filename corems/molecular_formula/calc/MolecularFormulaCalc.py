@@ -392,9 +392,10 @@ class MolecularFormulaCalc:
                 if mf._mspeak_parent:
                     #stores mspeak abundance
                     accumulated_mz_score.append(mf.mz_error_score)
-                else:
+                elif MSParameters.molecular_search.legacy_av_mzerr:
                     # fill missing mz with abundance 0 and mz error score of 0
                     accumulated_mz_score.append(0.0)
+                    
 
         average_mz_score = sum(accumulated_mz_score)/len(accumulated_mz_score)
         
