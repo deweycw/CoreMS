@@ -794,10 +794,7 @@ class MolecularFormulaSearchSettings:
     mz_error_average: float = 0.0
 
     # use legacy average mz error score calculation (undetected isos are counted in average)
-    legacy_av_mzerr = False 
-
-    # calculate mz error score from mono only
-    mz_error_mono_only = False
+    legacy_av_mzerr = True 
     
     # used_atom_valences: {'C': 4, 'H':1, etc} = dataclasses.field(default_factory=dict)
     used_atom_valences: dict = dataclasses.field(default_factory=dict)
