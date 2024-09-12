@@ -3,11 +3,7 @@ from copy import deepcopy
 
 
 #from matplotlib import rcParamsDefault, rcParams
-<<<<<<< HEAD
-from numpy import array, power, float64, where, histogram, ones
-=======
 from numpy import array, power, float64, where, histogram, trapz
->>>>>>> main
 
 from pandas import DataFrame
 from lmfit.models import GaussianModel

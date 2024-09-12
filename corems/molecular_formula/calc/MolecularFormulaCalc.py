@@ -1,10 +1,6 @@
 __author__ = "Yuri E. Corilo"
 __date__ = "Jun 24, 2019"
 
-<<<<<<< HEAD
-import IsoSpecPy
-from numpy import isnan, power, exp, nextafter
-=======
 
 from numpy import isnan, power, exp, nextafter, array
 from pandas import DataFrame
@@ -556,11 +552,6 @@ class MolecularFormulaCalc:
                     continue
 
         dbe = 1 + (0.5 * individual_dbe)
-<<<<<<< HEAD
-
-
-
-=======
         
 >>>>>>> main
         if self.ion_type == Labels.adduct_ion:
@@ -709,7 +700,6 @@ class MolecularFormulaCalc:
 
 
         
->>>>>>> main
         new_formulas = []
         element_list = spaced_str.split(' ')
 

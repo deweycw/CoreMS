@@ -135,11 +135,7 @@ class LiquidChromatographSetting:
         0-100 % used for extracted ion chromatogram peak detection. Default is 0.01.
     """
    
-<<<<<<< HEAD
-    scans: list | tuple = (-1, -1)
-=======
     scans: list | tuple = (-1,-1)
->>>>>>> main
     
     eic_tolerance_ppm: float = 5
     

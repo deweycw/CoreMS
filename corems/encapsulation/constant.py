@@ -36,27 +36,19 @@ class Labels: #pragma: no cover
     ion_type_translate = { 'protonated': 'DE_OR_PROTONATED',
                           'de-protonated': 'DE_OR_PROTONATED',
                           'radical': 'RADICAL',
-<<<<<<< HEAD
-                          'adduct': 'ADDUCT'}
-
-=======
                           'adduct': 'ADDUCT',
                           'ADDUCT': 'ADDUCT'}
     
->>>>>>> main
 class Atoms: #pragma: no cover
     """ Class for Atoms in CoreMS
 
     This class includes key properties of atoms (and the electron) and isotopes, including their exact masses, relative abundances, and covalences.
     It also associates which isotopes are for the same element, and provides an ordering of elements.
 
-<<<<<<< HEAD
-=======
     IUPAC definition of monoisotopic mass is based on the most abundant isotopes of each element present.
     Here, we will use atom symbols with isotope numbers for all isotopes excluding the most abundant one.
     This list has been corrected up to Iodine. 
     
->>>>>>> main
     References
     ----------
 
@@ -422,26 +414,6 @@ class Atoms: #pragma: no cover
                      '294Og': 294.21392}
     
 
-<<<<<<< HEAD
-    atoms_order = ['C', 'H', 'O', 'N', 'S', 'P', 'Fe', 'Cl', 'Na','13C','33S', '34S', '36S', '37Cl','54Fe','57Fe','58Fe', 'Ca',
-                        'V', 'I', 'Ac', 'Al', 'Ar', 'As', 'At', 'Au', 'Co', 'Cs', 'D', 'F', 'Fr','18O', '17O',
-                        'He', 'Po', 'Ra', 'Rh', 'Rn', 'Be', 'Bi', 'Nb','Ni', '60Ni',
-                        '61Ni', '62Ni', '10B', '11B', '6Li', '7Li', 'La', 'Mn', '107Ag', '109Ag', '100Mo',
-                        '100Ru', '101Ru', '102Pd', '102Ru', '104Pd', '104Ru', '105Pd', 'Cd', '106Cd', '106Pd', '108Cd',
-                        '108Pd', '110Cd', '110Pd', '111Cd', '112Cd', '112Sn', '113Cd', '113In', '114Cd', '114Sn',
-                        'In', '115In', '115Sn', '116Cd', '116Sn', '117Sn', '118Sn', '119Sn', '120Sn', '120Te', '121Sb',
-                        '122Sn', '122Te', '123Sb', '123Te', '124Sn', '124Te', '124Xe', '125Te', '126Te', '126Xe',
-                        '128Te', '128Xe', '129Xe', '130Ba', '130Te', '130Xe', '131Xe', '132Ba', '132Xe', '134Ba',
-                        '134Xe', '135Ba', '136Ba', '136Xe', '137Ba', '138Ba', '15N', '174Hf', '176Hf', '177Hf', '178Hf',
-                        '179Hf', '180Hf', '180W', '182W', '183W', '184Os', '184W', '185Re', '186Os', '186W', '187Os', '187Re',
-                        '188Os', '189Os', '190Os', '190Pt', '191Ir', '192Ir', '192Os', '192Pt', '194Pt', '195Pt', '196Hg',
-                        '196Pt', '198Hg', '198Pt', '199Hg', '200Hg', '201Hg', '202Hg', '203Tl', '204Hg', '204Pb', '205Tl', '206Pb',
-                        '207Pb', '208Pb', 'Pb', '20Ne', '22Ne', '24Mg', '25Mg', '26Mg', '28Si', '29Si', '30Si', 'K', '40Ca', '41K', '44Ca',
-                        '46Ti', '47Ti', '48Ti', '49Ti', '50Cr', '50Ti', '50V', '51V', 'Cr', '52Cr', '53Cr', '54Cr', 'Cu', 'Zn', '65Cu', '66Zn',
-                        '67Zn', '68Zn', '69Ga', '70Ge', '71Ga', '72Ge', '73Ge', '74Ge', '76Ge', '76Se', '77Se', '78Se', 'Br', '81Br', '80Kr',
-                        'Se', '82Kr', '82Se', '83Kr', '84Kr', '85Rb', '86Kr', '86Sr', '87Rb', '87Sr', '88Sr', '90Zr', '91Zr', '92Mo', '92Zr',
-                        '94Mo', '94Zr', '95Mo', '96Mo', '96Ru', '96Zr', '97Mo', 'Mo', '98Ru', '99Ru']
-=======
     # This list orders atoms, starting with the most abundant isotopes first, ordered as described. 
     # Less abundant isotopes are ordered by mass at the end of the list.
     atoms_order = ['C', 'H', 'O', 'N', 'P', 'S', # CHONPS
@@ -477,7 +449,6 @@ class Atoms: #pragma: no cover
                     '190Os', '190Pt', '191Ir', '192Ir', '192Os', '192Pt', '194Pt', '195Pt', '196Hg','196Pt', '198Hg', '198Pt','199Hg', 
                     '200Hg', '201Hg', '202Hg', '203Tl', '204Hg', '204Pb', '205Tl','206Pb','207Pb', '208Pb'
                     ]
->>>>>>> main
 
     atoms_covalence = {'C': (4),
                      '13C': (4),
@@ -903,78 +874,6 @@ class Atoms: #pragma: no cover
                           '293Lv': 0,
                           '292Ts': 0,
                           '294Og': 0}
-<<<<<<< HEAD
-
-    isotopes = {'F': ['Flourine', ['F']],
-            'Na': ['Sodium', ['Na']],
-            'Al': ['Aluminum', ['Al']],
-            'P': ['Phosphorus', ['P']],
-            'Sc': ['Scandium', ['Sc']],
-            'Co': ['Cobalt', ['Co']],
-            'He': ['Helium', ['3He', 'He']],
-            'Ar': ['Argon', ['36Ar', '38Ar', 'Ar']],
-            'H': ['Hydrogen', ['H', 'D']],
-            'Cl': ['Chlorine', ['Cl', '37Cl']],
-            'Li': ['Lithium', ['6Li', 'Li']],
-            'Be': ['Beryllium', ['Be']],
-            'B': ['Boron', ['10B', 'B']],
-            'C': ['Carbon', ['C', '13C']],
-            'O': ['Oxygen', ['O', '17O', '18O']],
-            'S': ['Sulfur', ['S', '33S', '34S', '36S']],
-            'N': ['Nitrogen', ['N', '15N']],
-            'V': ['Vanadium', ['50V', 'V']],
-            'Ne': ['Neon', ['Ne', '21Ne', '22Ne']],
-            'Mg': ['Magnesium', ['Mg', '25Mg', '26Mg']],
-            'Si': ['Silicon', ['Si', '29Si', '30Si']],
-            'K': ['Potassium', ['K', '40K', '41K']],
-            'Ca': ['Calcium', ['Ca', '42Ca', '43Ca', '44Ca', '46Ca', '48Ca']],
-            'Ti': ['Titanium', ['46Ti', '47Ti', 'Ti', '49Ti', '50Ti']],
-            'Cr': ['Chromium', ['50Cr', 'Cr', '53Cr', '54Cr']],
-            'Fe': ['Iron', ['54Fe', 'Fe', '57Fe', '58Fe']],
-            'Mn': ['Manganese', ['Mn']],
-            'Ni': ['Nickel', ['Ni', '60Ni', '61Ni', '62Ni', '64Ni']],
-            'Cu': ['Copper', ['Cu', '65Cu']],
-            'Zn': ['Zinc', ['Zn', '66Zn', '67Zn', '68Zn', '70Zn']],
-            'Ga': ['Gallium', ['Ga', '71Ga']],
-            'Ge': ['Germanium', ['70Ge', '72Ge', '73Ge', 'Ge', '76Ge']],
-            'As': ['Arsenic', ['As']],
-            'Se': ['Selenium', ['74Se', '76Se', '77Se', '78Se', 'Se', '82Se']],
-            'Br': ['Bromine', ['Br', '81Br']],
-            'Kr': ['Krypton', ['78Kr', '80Kr', '82Kr', '83Kr', 'Kr', '86Kr']],
-            'Rb': ['Rubidium', ['Rb', '87Rb']],
-            'Sr': ['Strontium', ['84Sr', '86Sr', '87Sr', 'Sr']],
-            'Y': ['Yttrium', ['Y']],
-            'Zr': ['Zironium', ['Zr', '91Zr', '92Zr', '94Zr', '96Zr']],
-            'Nb': ['Niobium', ['Nb']],
-            'Mo': ['Molybdenum', ['92Mo', '94Mo', '95Mo', '96Mo', '97Mo', 'Mo', '100Mo']],
-            'Ru': ['Ruthenium', ['96Ru', '98Ru', '99Ru', '100Ru', '101Ru', 'Ru', '104Ru']],
-            'Rh': ['Rhodium', ['Rh']],
-            'Pd': ['Palladium', ['102Pd', '104Pd', '105Pd', 'Pd', '108Pd', '110Pd']],
-            'Ag': ['Silver', ['Ag', '109Ag']],
-            'Cd': ['Cadmium', ['106Cd', '108Cd', '110Cd', '111Cd', '112Cd', '113Cd', 'Cd', '116Cd']],
-            'In': ['Indium', ['113In', 'In']],
-            'Sn': ['Tin', ['112Sn', '114Sn', '115Sn', '116Sn', '117Sn', '118Sn', '119Sn', 'Sn', '122Sn', '124Sn']],
-            'Sb': ['Antimony', ['Sb', '123Sb']],
-            'Te': ['Tellurium', ['120Te', '122Te', '123Te', '124Te', '125Te', '126Te', '128Te', 'Te']],
-            'I': ['Iodine', ['I']],
-            'Xe': ['Xenon', ['124Xe', '126Xe', '128Xe', '129Xe', '130Xe', '131Xe', 'Xe', '134Xe', '136Xe']],
-            'Cs': ['Cesium', ['Cs']],
-            'Ba': ['Barium', ['130Ba', '132Ba', '134Ba', '135Ba', '136Ba', '137Ba', 'Ba']],
-            'La': ['Lanthanum', ['138La', 'La']],
-            'Hf': ['Hafnium', ['174Hf', '176Hf', '177Hf', '178Hf', '179Hf', 'Hf']],
-            'Ta': ['Tantalum', ['180Ta', 'Ta']],
-            'W': ['Tungsten', ['180W', '182W', '183W', 'W', '186W']],
-            'Re': ['Rhenium', ['185Re', 'Re']],
-            'Os': ['Osmium', ['184Os', '186Os', '187Os', '188Os', '189Os', '190Os', 'Os']],
-            'Ir': ['Iridium', ['191Ir', 'Ir']],
-            'Pt': ['Platinum', ['190Pt', '192Pt', '194Pt', 'Pt', '196Pt', '198Pt']],
-            'Au': ['Gold', ['Au']],
-            'Hg': ['Mercury', ['196Hg', '198Hg', '199Hg', '200Hg', '201Hg', 'Hg', '204Hg']],
-            'Tl': ['Thallium', ['203Tl', 'Tl']],
-            'Pb': ['Lead', ['204Pb', '206Pb', '207Pb', 'Pb']],
-            'Bi': ['Bismuth', ['Bi']],
-            }
-=======
     
     # Isotopes here is a dictionary of symbol, including full name, 
     # and then the isotopes which arent the most abundant one, sorted by abundance.

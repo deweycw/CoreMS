@@ -414,9 +414,6 @@ class MolecularFormulaBase(MolecularFormulaCalc):
         """
         isotopologues = []
         for mf in self._cal_isotopologues(self._d_molecular_formula, min_abundance, current_mono_abundance, dynamic_range ):
-<<<<<<< HEAD
-            yield MolecularFormulaIsotopologue(*mf, current_mono_abundance, self.ion_charge)
-=======
             isotopologues.append(mf)
         
         # To account for differences in how the isotopologue outputs are sorted between IsoSpec versions. 
@@ -430,7 +427,6 @@ class MolecularFormulaBase(MolecularFormulaCalc):
                 ion_type=self.ion_type, 
                 adduct_atom=self.adduct_atom
                 )
->>>>>>> main
     
     def atoms_qnt(self,atom): 
         """Get the atom quantity of a specific atom in the molecular formula."""

@@ -1,11 +1,5 @@
-<<<<<<< HEAD
-mono_crash*
-cdewey/*
-env*/
-=======
 cdewey/
 env/
->>>>>>> main
 venv/ 
 test_env/ 
 venv310/
