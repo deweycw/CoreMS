@@ -123,7 +123,7 @@ def test_import_transient():
         #MSParameters.mass_spectrum.noise_threshold_min_relative_abundance = 1
 
         #MSParameters.mass_spectrum.noise_threshold_method = 'signal_noise'
-        #MSParameters.mass_spectrum.s2n_threshold = 50
+        #MSParameters.mass_spectrum.noise_threshold_min_s2n = 50
 
         MSParameters.mass_spectrum.noise_threshold_method = 'log'
         MSParameters.mass_spectrum.noise_threshold_log_nsigma = 20
@@ -169,6 +169,7 @@ def test_import_corems_hdf5():
     mass_list_reader = ReadCoreMSHDF_MassSpectrum(file_location)
 
     mass_spectrum = mass_list_reader.get_mass_spectrum()
+    mass_spectrum.to_dataframe()
 
     for mspeak in mass_spectrum:
         
@@ -291,7 +292,7 @@ def test_import_mass_list():
     MSParameters.mass_spectrum.noise_threshold_min_relative_abundance = 1
 
     # MSParameters.mass_spectrum.noise_threshold_method = 'signal_noise'
-    # MSParameters.mass_spectrum.s2n_threshold = 100
+    # MSParameters.mass_spectrum.noise_threshold_min_s2n = 100
 
     #MSParameters.mass_spectrum.noise_threshold_method = 'log'
     #MSParameters.mass_spectrum.noise_threshold_min_std = 32
@@ -362,11 +363,11 @@ if __name__ == '__main__':
     #test_import_lcms_from_transient()
     #test_import_thermo_profile_mass_list()
     # test_import_transient()
-    #test_import_corems_hdf5()
+    test_import_corems_hdf5()
     #test_import_corems_mass_list()
     #test_import_mass_list()
     #test_import_maglab_pks()
     #test_andi_netcdf_gcms()
-    test_import_corems_mass_list()
+    #test_import_corems_mass_list()
     #test_import_thermo_average()
 

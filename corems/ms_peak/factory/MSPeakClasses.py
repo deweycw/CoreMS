@@ -2,6 +2,7 @@ __author__ = "Yuri E. Corilo"
 __date__ = "Jun 12, 2019"
 
 from copy import deepcopy
+import math
 from corems.molecular_formula.factory.MolecularFormulaFactory import MolecularFormula
 from numpy import nan
 from corems.ms_peak.calc.MSPeakCalc import MSPeakCalculation
@@ -78,10 +79,9 @@ class _MSPeak(MSPeakCalculation):
         self.resolving_power = float(resolving_power)
         self.signal_to_noise = float(signal_to_noise)
         # profile indexes
-        #TODO fix these names from 'scan' to be more logical about peak indexes.
-        self.start_scan = int(indexes[0])
-        self.apex_scan = int(indexes[1])
-        self.final_scan = int(indexes[2])
+        self.peak_left_index = int(indexes[0])
+        self.peak_apex_index = int(indexes[1])
+        self.peak_right_index = int(indexes[2])
 
         # mass spec obj index
         self.index = int(index)
@@ -204,7 +204,7 @@ class _MSPeak(MSPeakCalculation):
     @property
     def nominal_mz_exp(self):
         """ The experimental nominal (integer) m/z value of the peak."""
-        return int(self.mz_exp)
+        return math.floor(self.mz_exp)
 
     @property
     def kmd(self):
@@ -317,15 +317,15 @@ class _MSPeak(MSPeakCalculation):
 
             if ax is None:
                 ax = plt.gca()
-            x = self._ms_parent.mz_exp_profile[self.start_scan : self.final_scan]
-            y = self._ms_parent.abundance_profile[self.start_scan : self.final_scan]
+            x = self._ms_parent.mz_exp_profile[self.peak_left_index : self.peak_right_index]
+            y = self._ms_parent.abundance_profile[self.peak_left_index : self.peak_right_index]
 
             ax.plot(x, y, color=color, label="Data")
             ax.set(xlabel="m/z", ylabel="abundance")
             if derivative and not self._ms_parent.is_centroid:
                 dy = sp.derivate(
                     self._ms_parent.abundance_profile[
-                        self.start_index : self.final_index + 1
+                        self.peak_left_index : self.peak_right_index + 1
                     ]
                 )
                 ax.plot(x, dy, c=deriv_color)

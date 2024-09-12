@@ -63,16 +63,16 @@ class DataInputSetting:
         self.header_translate = {'m/z': Labels.mz, 
                                  'mOz': Labels.mz,
                                  'Mass': Labels.mz,
-                                 'Resolving Power': 'Resolving Power',
+                                 'Resolving Power': Labels.rp,
                                  'Res.': Labels.rp,
+                                 'resolution': Labels.rp,
                                  'Intensity': Labels.abundance,
                                  'I': Labels.abundance,
                                  'Abundance': Labels.abundance,
+                                 'abs_abu': Labels.abundance,
                                  'Signal/Noise': Labels.s2n,
                                  'S/N': Labels.s2n,
-                                 'abs_abu': Labels.abundance,
-                                 'sn': Labels.s2n,
-                                 'resolution': Labels.rp}
+                                 'sn': Labels.s2n}
 
     def add_mz_label(self, label):
         """Add a label to the header_translate dictionary to be translated to the corems label for mz."""
@@ -135,7 +135,11 @@ class LiquidChromatographSetting:
         0-100 % used for extracted ion chromatogram peak detection. Default is 0.01.
     """
    
+<<<<<<< HEAD
     scans: list | tuple = (-1, -1)
+=======
+    scans: list | tuple = (-1,-1)
+>>>>>>> main
     
     eic_tolerance_ppm: float = 5
     
@@ -224,6 +228,10 @@ class MassSpectrumSetting:
         Minimum ppm error to use for calibration. Default is -1.0.
     calib_sn_threshold : float, optional
         Signal to noise threshold to use for calibration. Default is 2.0.
+    calibration_ref_match_method: string, optional
+        Method for matching reference masses with measured masses for recalibration. Default is 'legacy'. 
+    calibration_ref_match_tolerance: float, optional
+        If using the new method for calibration reference mass matching, this tolerance is the initial matching tolerance. Default is 0.003
     do_calibration : bool, optional
         If True, perform calibration. Default is True.    
     """
@@ -252,13 +260,17 @@ class MassSpectrumSetting:
     # How many data points (in each direction) to extrapolate the mz axis and 0 pad the abundance axis
     # This will fix peak picking at spectrum limit issues
     #  0 to keep normal behaviour, typical value 3 to fix
-    picking_point_extrapolate: int = 3 
+    picking_point_extrapolate: int = 0 
 
     calib_minimize_method: str = 'Powell'
     calib_pol_order: int = 2
     max_calib_ppm_error: float = 1.0
     min_calib_ppm_error: float = -1.0
     calib_sn_threshold: float = 2.0
+    calibration_ref_match_method: str = 'legacy'
+    calibration_ref_match_method_implemented: tuple = ('legacy', 'merged')
+    calibration_ref_match_tolerance: float = 0.003
+    calibration_ref_match_std_raw_error_limit: float = 1.5
     #calib_ref_mzs: list = [0]
 
     do_calibration: bool = True
@@ -813,8 +825,17 @@ class MolecularFormulaSearchSettings:
 
         # add cummon values
         current_used_atoms = self.used_atom_valences.keys()
+        
         for atom in Atoms.atoms_covalence.keys():
+            
             if atom not in current_used_atoms:
-                self.used_atom_valences[atom] = Atoms.atoms_covalence.get(atom)
-
+                
+                covalence = Atoms.atoms_covalence.get(atom)
+                
+                if isinstance(covalence , int):
+                    self.used_atom_valences[atom] = covalence
+                
+                else:
+                    #will get the first number of all possible covalances, which should be the most commum 
+                    self.used_atom_valences[atom] = covalence[0]
 

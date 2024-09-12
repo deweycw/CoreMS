@@ -1,8 +1,14 @@
 __author__ = "Yuri E. Corilo"
 __date__ = "Jun 24, 2019"
 
+<<<<<<< HEAD
 import IsoSpecPy
 from numpy import isnan, power, exp, nextafter
+=======
+
+from numpy import isnan, power, exp, nextafter, array
+from pandas import DataFrame
+>>>>>>> main
 from scipy.stats import pearsonr, spearmanr, kendalltau
 import re
 
@@ -10,6 +16,19 @@ from corems.encapsulation.constant import Atoms
 from corems.encapsulation.constant import Labels
 from corems.encapsulation.factory.parameters import MSParameters
 from corems.molecular_id.calc.SpectralSimilarity import SpectralSimilarity
+
+# this is to handle both versions of IsoSpecPy, 2.0.2 and 2.2.2
+# TODO in a future release remove support for legacy isospecpy
+from packaging import version
+import IsoSpecPy
+isospec_version = IsoSpecPy.__version__
+if version.parse(isospec_version) > version.parse('2.0.2'): 
+    legacy_isospec = False
+else: legacy_isospec = True
+if legacy_isospec:
+    from IsoSpecPy import IsoSpecPy
+    print(f"IsoSpecPy version {isospec_version} is installed, and support is deprecated. Please update to 2.2.2")
+
 
 class MolecularFormulaCalc:
     """Class of calculations related to molecular formula
@@ -537,9 +556,13 @@ class MolecularFormulaCalc:
                     continue
 
         dbe = 1 + (0.5 * individual_dbe)
+<<<<<<< HEAD
 
 
 
+=======
+        
+>>>>>>> main
         if self.ion_type == Labels.adduct_ion:
             dbe = dbe + 0.5
 
@@ -602,6 +625,7 @@ class MolecularFormulaCalc:
 
         # updated to use Isospecpy 2.2.1 on 01-04-2024, Christian Dewey
         cut_off_to_IsoSpeccPy = 1-(1/ms_dynamic_range)
+<<<<<<< HEAD
 
         formula_string = ' '.join([k + str(n) for k,n in zip(list(formula_dict.keys()), list(formula_dict.values()))])
         spaced_str = formula_string.split('IonType')[0].strip()
@@ -615,6 +639,77 @@ class MolecularFormulaCalc:
             print(ix, p, mf)
             ix = ix + 1'''
 
+=======
+        
+        #print("cut_off_to_IsoSpeccPy", cut_off_to_IsoSpeccPy, current_abundance, min_abundance, ms_dynamic_range)
+        #print(cut_off_to_IsoSpeccPy)
+        atoms_labels = (atom for atom in formula_dict.keys() if atom != Labels.ion_type and atom != 'H')
+       
+        atoms_count = []
+        masses_list_tuples = []
+        props_list_tuples = []
+        all_atoms_list = []
+        
+        for atom_label in atoms_labels:
+            
+            if Atoms.isotopes.get(atom_label)[1][0] is None:
+                'This atom_label has no heavy isotope'
+                atoms_count.append(formula_dict.get(atom_label))
+                mass = Atoms.atomic_masses.get(atom_label)
+                prop = Atoms.isotopic_abundance.get(atom_label)
+                masses_list_tuples.append([mass])
+                props_list_tuples.append([prop])
+                all_atoms_list.append(atom_label)
+                
+            else:
+                
+                isotopes_label_list = Atoms.isotopes.get(atom_label)[1]
+            
+                if len(isotopes_label_list) > 1:
+                    'This atom_label has two or more heavy isotope'
+                    isotopos_labels = [i for i in isotopes_label_list]
+                else:
+                    'This atom_label only has one heavy isotope'
+                    isotopos_labels = [isotopes_label_list[0]]
+                
+                #all_atoms_list.extend(isotopos_labels) 
+                isotopos_labels = [atom_label] + isotopos_labels
+                
+                all_atoms_list.extend(isotopos_labels)
+                
+                masses = [Atoms.atomic_masses.get(atom_label) for atom_label in isotopos_labels]
+                props = [Atoms.isotopic_abundance.get(atom_label) for atom_label in isotopos_labels]
+                
+                atoms_count.append(formula_dict.get(atom_label))
+                masses_list_tuples.append(masses)
+                props_list_tuples.append(props)
+        if legacy_isospec:
+            iso = IsoSpecPy.IsoSpec(atoms_count,masses_list_tuples,props_list_tuples, cut_off_to_IsoSpeccPy)
+            conf = iso.getConfs()
+            masses = conf[0]
+            probs = exp(conf[1])
+            molecular_formulas = conf[2]
+            #print('conf', conf)
+            #print('probs', conf[1])
+        else:
+            # This syntax in IsoSpecPy 2.2.2 yields the same information as the legacy approach
+            iso = IsoSpecPy.IsoTotalProb(atomCounts = atoms_count, isotopeMasses = masses_list_tuples, 
+                           isotopeProbabilities = props_list_tuples, prob_to_cover =cut_off_to_IsoSpeccPy, get_confs=True)
+            masses = list(iso.masses)
+            probs = array(list(iso.probs))
+            confs = list(iso.confs)
+
+            molecular_formulas = []
+            for x in confs:
+                tmplist = []
+                for y in x:
+                    tmplist.extend(list(y))
+                molecular_formulas.append(tmplist)
+
+
+
+        
+>>>>>>> main
         new_formulas = []
         element_list = spaced_str.split(' ')
 

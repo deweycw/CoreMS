@@ -3,7 +3,11 @@ from copy import deepcopy
 
 
 #from matplotlib import rcParamsDefault, rcParams
+<<<<<<< HEAD
 from numpy import array, power, float64, where, histogram, ones
+=======
+from numpy import array, power, float64, where, histogram, trapz
+>>>>>>> main
 
 from pandas import DataFrame
 from lmfit.models import GaussianModel
@@ -119,6 +123,8 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         self.calibration_points = None
         self.calibration_RMS = None
         self.calibration_segment = None
+        self.calibration_raw_error_median = None
+        self.calibration_raw_error_stdev = None
 
     def _init_settings(self):
         """Initializes the settings for the mass spectrum."""
@@ -217,7 +223,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         - _calibration_terms
         - label
         - analyzer
-        - aquisition_time
+        - acquisition_time
         - instrument_label
         - polarity
         - scan_number
@@ -240,7 +246,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
 
         self.analyzer = d_params.get('analyzer')
 
-        self.aquisition_time = d_params.get('aquisition_time')
+        self.acquisition_time = d_params.get('acquisition_time')
 
         self.instrument_label = d_params.get('instrument_label')
 
@@ -613,7 +619,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
     @property
     def tic(self):
         """Return the total ion current of the mass spectrum."""
-        return sum(self.abundance_profile)
+        return trapz(self.abundance_profile, self.mz_exp_profile)
 
     def check_mspeaks_warning(self):
         """Check if the mass spectrum has MSpeaks objects.
@@ -1304,6 +1310,7 @@ class MassSpecfromFreq(MassSpecBase):
         if self._mz_exp[0] > self._mz_exp[-1]:
             self._mz_exp = self._mz_exp[::-1]
             self._abundance = self._abundance[::-1]
+            self._frequency_domain = self._frequency_domain[::-1]
 
     def _set_mz_domain(self):
         """Set the m/z domain of the mass spectrum based on the settings of d_params."""
@@ -1416,6 +1423,8 @@ class MassSpecCentroid(MassSpecBase):
 
         self.is_centroid = True
         self.data_dict = data_dict
+        self._mz_exp = data_dict[Labels.mz]
+        self._abundance = data_dict[Labels.abundance]
 
         if auto_process:
             self.process_mass_spec()

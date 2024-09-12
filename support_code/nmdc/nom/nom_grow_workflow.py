@@ -3,6 +3,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import argparse
 from zipfile import ZipFile
 
 from openpyxl import load_workbook
@@ -36,6 +37,7 @@ class EMSL_Metadata:
     description: str
     collection_date: str
     nmdc_study: str
+    biosample_id: str
     
 def parse_metadata(metadata_file_path:Path) -> EMSL_Metadata:
         
@@ -69,6 +71,7 @@ def parse_metadata(metadata_file_path:Path) -> EMSL_Metadata:
         description = full_list_worksheet['Z']
         collection_date = full_list_worksheet['AA']
         nmdc_study = full_list_worksheet['AB']
+        biosample_id = full_list_worksheet['AC']
                         
         for x in range(1, len(full_list_worksheet['A'])):
 
@@ -95,16 +98,39 @@ def parse_metadata(metadata_file_path:Path) -> EMSL_Metadata:
                                 ecosystem_subtype = ecosystem_subtype[x].value,
                                 description = description[x].value,
                                 collection_date = collection_date[x].value,
-                                nmdc_study = nmdc_study[x].value
+                                nmdc_study = nmdc_study[x].value,
+                                biosample_id = biosample_id[x].value
                                 )
             
             yield metadata
 
 def run_nom_nmdc_data_processing():
+
+    # set command line arguments
+    parser = argparse.ArgumentParser(description="A program to run the nmdc nom workflow and create the corresponding metadata objects.")
+    parser.add_argument('--data_dir', 
+                        '-d', 
+                        type=str, 
+                        help="The directory path where the raw data lives.")
+    parser.add_argument('--metadata_path',
+                        '-m',
+                        type=str,
+                        help="The .xlsx file path where the biosample metadata lives (include .xlsx).")
+    parser.add_argument('--registration_file_name',
+                        '-rf',
+                        type=str,
+                        help="The desired name of the registration file (include .json). E.g. emsl_only_grow.json")
+    parser.add_argument("--ref_calibration_path",
+                        '-r',
+                        type=str,
+                        help="The .ref path where the reference calibration data lives (include .ref).")
+    
+
+    args = parser.parse_args()
     
     file_ext = '.d' 
-    data_dir = Path("/Users/eber373/Library/CloudStorage/OneDrive-PNNL/Desktop/data/nmdc_data/GROW/emsl_only/")
-    metadata_file_path = Path("/Users/eber373/Library/CloudStorage/OneDrive-PNNL/Desktop/data/nmdc_data/GROW/emsl_only/emsl_only.xlsx")
+    data_dir = Path(args.data_dir)
+    metadata_file_path = Path(args.metadata_path)
 
     raw_dir_zip = data_dir / Path("raw_zip/")
     raw_dir_zip.mkdir(parents=True, exist_ok=True)
@@ -116,18 +142,18 @@ def run_nom_nmdc_data_processing():
     
     registration_dir = data_dir / 'registration'
     registration_dir.mkdir(parents=True, exist_ok=True)
-    registration_file = registration_dir / 'emsl_only_grow.json'
+    registration_file = registration_dir / args.registration_file_name
     
-    field_strength = 12
+    field_strength = 7
     
-    ref_calibration_path = Path("db/Hawkes_neg.ref")
+    ref_calibration_path = Path(args.ref_calibration_path)
     failed_list = []
     
     nmdc_database = nmdc_metadata_gen.start_nmdc_database()
 
     for each_data in parse_metadata(metadata_file_path):
 
-        raw_file_path = data_dir / each_data.data_path / each_data.data_path.with_suffix(file_ext)    
+        raw_file_path = data_dir / each_data.data_path.with_suffix(file_ext)    
 
         print(raw_file_path)
         
@@ -151,7 +177,7 @@ def run_nom_nmdc_data_processing():
                                                         output_file_path,
                                                         "https://nmdcdemo.emsl.pnnl.gov/", 
                                                         nmdc_database,
-                                                        each_data, biosample_id=None)
+                                                        each_data, biosample_id=each_data.biosample_id)
 
             else:
                 

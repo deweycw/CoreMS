@@ -712,16 +712,20 @@ class MolecularCombinations:
 
         number_of_halogen = self.get_total_halogen_atoms(class_dict)
         number_of_hetero = self.get_total_heteroatoms(class_dict)
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> main
         if number_of_halogen > 0:
 
-            TEM_HALOGEN = True
+            HAS_HALOGEN = True
 
         else:
 
-            TEM_HALOGEN = False
+            HAS_HALOGEN = False
 
-        if TEM_HALOGEN:
+        if HAS_HALOGEN:
 
             remaining_halogen = number_of_halogen % 2
 
@@ -750,7 +754,11 @@ class MolecularCombinations:
 
             remaining_hetero_valence = 0
 
+<<<<<<< HEAD
         
+=======
+            
+>>>>>>> main
         if HAS_NITROGEN and not HAS_OTHER_HETERO:
 
             number_of_n = class_dict.get('N')
@@ -770,10 +778,15 @@ class MolecularCombinations:
             remaining_n = -1
 
         if remaining_n > 0.0:
+<<<<<<< HEAD
+
+            if HAS_NITROGEN or HAS_OTHER_HETERO:
+=======
+>>>>>>> main
 
             if HAS_NITROGEN or HAS_OTHER_HETERO:
 
-                if TEM_HALOGEN:
+                if HAS_HALOGEN:
                     if remaining_halogen == 0:
                         return 'odd'
                     else:
@@ -786,7 +799,7 @@ class MolecularCombinations:
 
             if HAS_NITROGEN or HAS_OTHER_HETERO:
 
-                if TEM_HALOGEN:
+                if HAS_HALOGEN:
                     if remaining_halogen == 0:
                         return 'even'
                     else:
@@ -797,7 +810,7 @@ class MolecularCombinations:
                 
         else:
 
-            if TEM_HALOGEN:
+            if HAS_HALOGEN:
                 if remaining_halogen == 0:
                     return 'even'
                 else:
