@@ -252,7 +252,7 @@ class MassSpectrumSetting:
     # How many data points (in each direction) to extrapolate the mz axis and 0 pad the abundance axis
     # This will fix peak picking at spectrum limit issues
     #  0 to keep normal behaviour, typical value 3 to fix
-    picking_point_extrapolate: int = 3 
+    picking_point_extrapolate: int = 0 
 
     calib_minimize_method: str = 'Powell'
     calib_pol_order: int = 2
@@ -813,8 +813,17 @@ class MolecularFormulaSearchSettings:
 
         # add cummon values
         current_used_atoms = self.used_atom_valences.keys()
+        
         for atom in Atoms.atoms_covalence.keys():
+            
             if atom not in current_used_atoms:
-                self.used_atom_valences[atom] = Atoms.atoms_covalence.get(atom)
-
+                
+                covalence = Atoms.atoms_covalence.get(atom)
+                
+                if isinstance(covalence , int):
+                    self.used_atom_valences[atom] = covalence
+                
+                else:
+                    #will get the first number of all possible covalances, which should be the most commum 
+                    self.used_atom_valences[atom] = covalence[0]
 
