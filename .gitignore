@@ -1,7 +1,4 @@
-assign/*
-assign-mzwindow/*
-cd-tests/
-BATS/
+cdewey/*
 env*/
 venv/ 
 test_env/ 
