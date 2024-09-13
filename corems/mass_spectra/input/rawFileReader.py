@@ -993,14 +993,6 @@ class ImportMassSpectraThermoMSFileReader(ThermoBaseClass, LC_Calculations):
     Returns MassSpecProfile object
     """
     
-    def get_orbi_k_for_res_power_calc(self):
-
-        instrumental_constant_k = {
-            'Orbitrap IQ-X': 44153470608502.77
-        }
-        
-        return instrumental_constant_k[self.iRawDataPlus.GetInstrumentData().Model]
-    
     def get_orbi_transient_times(self, firstScanNumber = None, lastScanNumber = None):
         """
         Returns a list for transient time targets for all scans, or selected scan range
@@ -1009,14 +1001,15 @@ class ImportMassSpectraThermoMSFileReader(ThermoBaseClass, LC_Calculations):
         res_trans_time = {
             "7500": 0.011,
             "15000": 0.027,
-            "22500": 0.043, # only applies to Ascend instrument
+            "22500": 0.043, # Ascend 
             "30000": 0.059,
-            "45000": 0.091, # only applies to Ascend instrument
+            "45000": 0.091, # Ascend 
             "50000": 0.091,
             "60000": 0.123,
             "120000": 0.251,
             "240000": 0.507,
-            "480000": 1.019, # only applies to Ascend instrument
+            "450000": 1.024, # Fusion Tribrid
+            "480000": 1.019, # Ascend, Exploris 480 
             "500000": 1.019
         }
 
@@ -1030,7 +1023,12 @@ class ImportMassSpectraThermoMSFileReader(ThermoBaseClass, LC_Calculations):
         for scan in range(firstScanNumber, lastScanNumber):
             scan_header = self.get_scan_header(scan)
 
-            rp_target = scan_header["Orbitrap Resolution:"]
+            if 'Orbitrap Resolution:' in scan_header.keys():
+                rp_key = 'Orbitrap Resolution:'
+            elif 'FT Resolution:' in scan_header.keys():
+                rp_key = 'FT Resolution:'
+
+            rp_target = scan_header[rp_key]
 
             transient_time = res_trans_time.get(rp_target)
 

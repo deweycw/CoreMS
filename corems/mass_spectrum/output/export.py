@@ -161,20 +161,22 @@ class HighResMassSpecExport(Thread):
         It calls the save method to perform the export."""
         self.save()
 
-    def get_pandas_df(self):
+    def get_pandas_df(self,include_isos):
         """Returns the mass spectrum data as a pandas DataFrame."""
         #nisos = [s for s in range(self.max_isos)]
 
         dict_data_list = self.get_list_dict_data(self.mass_spectrum)
-        if self.max_isos > 0:
-            isos_lbl = ['Expected Isotopologue ' + str(n) for n in range(1,self.max_isos+1)]
-            abunds_lbl = ['Expected Abundance ' + str(n) for n in range(1,self.max_isos+1)]
-        else:
-            isos_lbl = [None]
-            abunds_lbl = [None]
-        exp_lbls = [(i,a) for i, a in zip(isos_lbl, abunds_lbl)]
-        exp_lbls = [item for t in exp_lbls for item in t]
-        columns = self.columns_label + self.get_all_used_atoms_in_order(self.mass_spectrum) + exp_lbls
+        columns = self.columns_label + self.get_all_used_atoms_in_order(self.mass_spectrum)
+        if include_isos:
+            if self.max_isos > 0:
+                isos_lbl = ['Expected Isotopologue ' + str(n) for n in range(1,self.max_isos+1)]
+                abunds_lbl = ['Expected Abundance ' + str(n) for n in range(1,self.max_isos+1)]
+            else:
+                isos_lbl = [None]
+                abunds_lbl = [None]
+            exp_lbls = [(i,a) for i, a in zip(isos_lbl, abunds_lbl)]
+            exp_lbls = [item for t in exp_lbls for item in t]
+            columns = columns + exp_lbls
         df = DataFrame(dict_data_list, columns=columns)
         df.name = self.output_file
         return df
@@ -596,7 +598,6 @@ class HighResMassSpecExport(Thread):
                     dict_result[da] = e_iso.abundance_calc
                     if i > self.max_isos:
                         self.max_isos = i
-                        print(self.max_isos)
                     i=i+1
            
             dict_data_list.append(dict_result)
