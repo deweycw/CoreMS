@@ -986,14 +986,60 @@ class ImportDataDependentThermoMSFileReader(ThermoBaseClass, LC_Calculations):
             searchmz.join()
             return sorted(searchmz.results.keys())
 
-
 class ImportMassSpectraThermoMSFileReader(ThermoBaseClass, LC_Calculations):
 
     """Collection of methdos to import Summed/Averaged mass spectrum from Thermo's raw file
     Currently only for profile mode data
     Returns MassSpecProfile object
     """
+    
+    def get_orbi_k_for_res_power_calc(self):
 
+        instrumental_constant_k = {
+            'Orbitrap IQ-X': 44153470608502.77
+        }
+        
+        return instrumental_constant_k[self.iRawDataPlus.GetInstrumentData().Model]
+    
+    def get_orbi_transient_times(self, firstScanNumber = None, lastScanNumber = None):
+        """
+        Returns a list for transient time targets for all scans, or selected scan range
+        Resolving power and Transient time targets for Tribrid instruments"""
+
+        res_trans_time = {
+            "7500": 0.011,
+            "15000": 0.027,
+            "22500": 0.043, # only applies to Ascend instrument
+            "30000": 0.059,
+            "45000": 0.091, # only applies to Ascend instrument
+            "50000": 0.091,
+            "60000": 0.123,
+            "120000": 0.251,
+            "240000": 0.507,
+            "480000": 1.019, # only applies to Ascend instrument
+            "500000": 1.019
+        }
+
+        if firstScanNumber == None:
+            firstScanNumber = self.start_scan
+        if lastScanNumber == None:
+            lastScanNumber = self.end_scan
+
+        transient_time_list = []
+
+        for scan in range(firstScanNumber, lastScanNumber):
+            scan_header = self.get_scan_header(scan)
+
+            rp_target = scan_header["Orbitrap Resolution:"]
+
+            transient_time = res_trans_time.get(rp_target)
+
+            transient_time_list.append(transient_time)
+
+            # print(transient_time, rp_target)
+
+        return transient_time_list
+    
     def get_icr_transient_times(self):
         """
         Return a list for transient time targets for all scans, or selected scans range

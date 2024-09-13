@@ -762,6 +762,42 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         indexes_to_remove = MeanResolvingPowerFilter(self,ndeviations,plot,guess_pars).main()
         self.filter_by_index(indexes_to_remove)
 
+    def filter_by_min_resolving_power_orbi(self, T, k, f=1.0):
+        """Filter the mass spectrum by the specified minimum resolving power.
+
+        Parameters
+        ----------
+        T : float, transient length
+        k : float, instrumental constant, specific to individual Orbitrap instruments
+        f : float, fraction of theoretical resolving power at which to set threshold; 0 to 1; default is 1.0
+
+        """
+        from numpy import sqrt
+        rpe = lambda m, z: (sqrt(k) * T * f) / sqrt(m*z)
+
+        self.check_mspeaks_warning()
+
+        indexes_to_remove = [index for index, mspeak in enumerate(self.mspeaks) if  mspeak.resolving_power <= rpe(mspeak.mz_exp,mspeak.ion_charge)]
+        self.filter_by_index(indexes_to_remove)
+
+    def filter_by_max_resolving_power_orbi(self, T, k, f=1.0):
+        """Filter the mass spectrum by the specified max resolving power.
+
+        Parameters
+        ----------
+        T : float, transient length
+        k : float, instrumental constant, specific to individual Orbitrap instruments
+        f : float, fraction of theoretical resolving power at which to set threshold; default is 1.0, generally for max will want to set > 1
+
+        """
+        from numpy import sqrt
+        rpe = lambda m, z: (sqrt(k) * T * f) / sqrt(m*z)
+
+        self.check_mspeaks_warning()
+
+        indexes_to_remove = [index for index, mspeak in enumerate(self.mspeaks) if  mspeak.resolving_power >= rpe(mspeak.mz_exp,mspeak.ion_charge)]
+        self.filter_by_index(indexes_to_remove)
+
 
     def filter_by_min_resolving_power(self, B, T):
         """Filter the mass spectrum by the specified minimum resolving power.
