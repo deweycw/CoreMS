@@ -121,6 +121,7 @@ class MolecularFormulaBase(MolecularFormulaCalc):
         self._mspeak_parent = mspeak_parent
 
         self.expected_isotopologues = []
+        self.missing_isos = []
         self.mspeak_mf_isotopologues_indexes = []
         
         if self._mspeak_parent:
@@ -247,6 +248,11 @@ class MolecularFormulaBase(MolecularFormulaCalc):
             return (len(self.mspeak_mf_isotopologues_indexes)/len(self.expected_isotopologues))*100
         else: 
             return 100
+
+    @property
+    def missing_isotopologues(self, ):
+        if not len(self.expected_isotopologues) == 0:
+            return self._get_missing_isotopologues()
 
     @property
     def O_C(self): 

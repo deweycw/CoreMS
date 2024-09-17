@@ -1,5 +1,5 @@
-cdewey/
-env/
+cdewey/*
+env*/
 venv/ 
 test_env/ 
 venv310/

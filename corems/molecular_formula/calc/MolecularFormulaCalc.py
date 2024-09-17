@@ -234,6 +234,7 @@ class MolecularFormulaCalc:
         """
 
         # predicted std not set, using 0.3
+        
         if not self._mspeak_parent.predicted_std: self._mspeak_parent.predicted_std = 1.66
 
         #print( self._mspeak_parent.predicted_std)
@@ -386,7 +387,7 @@ class MolecularFormulaCalc:
             # has isotopologues based on current dinamic range
 
         accumulated_mz_score = [self.mz_error_score]
-
+            
         if expected_isotopologues:
 
             for mf in expected_isotopologues:
@@ -394,9 +395,10 @@ class MolecularFormulaCalc:
                 if mf._mspeak_parent:
                     #stores mspeak abundance
                     accumulated_mz_score.append(mf.mz_error_score)
-                else:
+                elif MSParameters.molecular_search.legacy_av_mzerr:
                     # fill missing mz with abundance 0 and mz error score of 0
                     accumulated_mz_score.append(0.0)
+                
 
         average_mz_score = sum(accumulated_mz_score)/len(accumulated_mz_score)
 
@@ -616,21 +618,7 @@ class MolecularFormulaCalc:
 
         # updated to use Isospecpy 2.2.1 on 01-04-2024, Christian Dewey
         cut_off_to_IsoSpeccPy = 1-(1/ms_dynamic_range)
-<<<<<<< HEAD
-
-        formula_string = ' '.join([k + str(n) for k,n in zip(list(formula_dict.keys()), list(formula_dict.values()))])
-        spaced_str = formula_string.split('IonType')[0].strip()
-        mfstring = spaced_str.replace(" ",'')
-
-        iso = IsoSpecPy.IsoTotalProb(cut_off_to_IsoSpeccPy,mfstring, get_confs=True,charge=self.ion_charge )
-        probs = [iso[i][1] for i in range(len(iso))]
-        molecular_formulas = [iso[i][2] for i in range(len(iso))]
-        ix = 0
-        '''for p, mf in zip(probs,molecular_formulas):
-            print(ix, p, mf)
-            ix = ix + 1'''
-
-=======
+        #print(cut_off_to_IsoSpeccPy)
         
         #print("cut_off_to_IsoSpeccPy", cut_off_to_IsoSpeccPy, current_abundance, min_abundance, ms_dynamic_range)
         #print(cut_off_to_IsoSpeccPy)
@@ -758,3 +746,39 @@ class MolecularFormulaCalc:
                 if theor_abundance > min_abundance:
                     #print('\t\t',formulas)
                     yield (formulas, prob)
+            #return zip(new_formulas, probs )
+    
+        #else:
+        #    return [] 
+        #    
+    def _get_missing_isotopologues(self):
+        """returns list of missing isotopologues."""
+        if self.is_isotopologue:
+            # confidence of isotopologue is pure mz error 
+            # TODO add more features here 
+            
+            mformula_index = self.mono_isotopic_formula_index
+            mspeak_index = self.mspeak_index_mono_isotopic
+
+            mspeak = self._mspeak_parent._ms_parent[mspeak_index]
+            
+            expected_isotopologues = mspeak[mformula_index].expected_isotopologues
+
+        else:
+            
+            expected_isotopologues = self.expected_isotopologues
+            # has isotopologues based on current dinamic range
+        
+        
+        if expected_isotopologues:
+            missing_isos = []
+            for mf in expected_isotopologues:
+                # molecular formula has been assigned to a peak
+                if mf._mspeak_parent:
+                    continue
+                else:
+                    # fill missing mz with abundance 0 and mz error score of 0
+                    #print(mf.mz_calc, mf.string, mf.abundance_calc)
+                    missing_isos.append(mf)
+
+        return missing_isos

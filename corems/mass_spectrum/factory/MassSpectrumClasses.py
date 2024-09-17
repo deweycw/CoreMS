@@ -553,6 +553,10 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
     @property
     def min_abundance(self):
         """Return the minimum abundance value of the mass spectrum."""
+
+        #if self.settings.noise_threshold_method == 'log':
+        #    return 10000 #min([mspeak.abundance for mspeak in self.mspeaks if mspeak.abundance > self.baseline_noise_std * self.settings.noise_threshold_log_nsigma])
+        #else:
         return min([mspeak.abundance for mspeak in self.mspeaks])
 
     # takes too much cpu time
@@ -757,6 +761,110 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         """
         self.check_mspeaks_warning()
         indexes_to_remove = MeanResolvingPowerFilter(self,ndeviations,plot,guess_pars).main()
+        self.filter_by_index(indexes_to_remove)
+
+    def filter_by_theoretical_resolving_power_orbi(self, T, ci):
+        from scipy.optimize import curve_fit
+        from scipy import stats
+        from numpy import sqrt, absolute, var, array, mean
+        # pip install uncertainties, if needed
+        try:
+            import uncertainties.unumpy as unp
+            import uncertainties as unc
+        except:
+            try:
+                from pip import main as pipmain
+            except:
+                from pip._internal import main as pipmain
+            pipmain(['install','uncertainties'])
+            import uncertainties.unumpy as unp
+            import uncertainties as unc
+
+        def get_ci(mzs, rps, ci):
+
+            def f(mz, sqrtk):
+                return sqrtk * T * 1 / sqrt(mz)
+
+            xdata = array(mzs)
+            ydata = array(rps)
+
+            popt, pcov = curve_fit(f,xdata,ydata)
+            px = xdata 
+            def predband(x, xd, yd, p, func, conf):
+                alpha = 1.0 - conf    # significance
+                N = xd.size          # data sample size
+                var_n = len(p)  # number of parameters
+                # Quantile of Student's t distribution for p=(1-alpha/2)
+                q = stats.t.ppf(1.0 - alpha / 2.0, N - var_n)
+                # Stdev of an individual measurement
+                se = sqrt(1. / (N - var_n) * \
+                            sum((yd - func(xd, *p)) ** 2))
+                # Auxiliary definitions
+                sx = (x - mean(xd)) ** 2
+                sxd = sum((xd - mean(xd)) ** 2)
+                # Prediction band
+                dy = q * se * sqrt(1.0+ (1.0/N) + (sx/sxd))
+                # Upper & lower prediction bands.
+                return dy
+
+            dy = predband(px, xdata, ydata, popt, f, conf=ci)
+            
+            return dy
+    
+        self.check_mspeaks_warning()
+
+        mzs = [mspeak.mz_exp for mspeak in self.mspeaks]
+        rps = [mspeak.resolving_power for mspeak in self.mspeaks]
+        charges = [mspeak.ion_charge for mspeak in self.mspeaks]
+
+        rpe = lambda m, z: (sqrt(4.283885e+13) * T) / sqrt(m*absolute(z))
+
+        rp_calculated = [rpe(m,z) for m,z in zip(mzs,charges)]
+        dR = get_ci(mzs,rps,ci)
+
+        lpb = rp_calculated - dR
+        upb = rp_calculated + dR 
+
+        pb_dict = {mzs[i]:{'lpb':lpb[i],'upb':upb[i]} for i in range(len(mzs))}
+        indexes_to_remove = [index for index, mspeak in enumerate(self.mspeaks) if  not ((mspeak.resolving_power <= pb_dict[mspeak.mz_exp]['upb']) and (mspeak.resolving_power >= pb_dict[mspeak.mz_exp]['lpb']))]
+
+        self.filter_by_index(indexes_to_remove)
+
+
+    def filter_by_min_resolving_power_orbi(self, T, f=1.0):
+        """Filter the mass spectrum by the specified minimum resolving power.
+
+        Parameters
+        ----------
+        T : float, transient length
+        k : float, instrumental constant, specific to individual Orbitrap instruments
+        f : float, fraction of theoretical resolving power at which to set threshold; 0 to 1; default is 1.0
+
+        """
+        from numpy import sqrt, absolute
+        rpe = lambda m, z: (sqrt(4.283885e+13) * T * f) / sqrt(m*absolute(z))
+
+        self.check_mspeaks_warning()
+
+        indexes_to_remove = [index for index, mspeak in enumerate(self.mspeaks) if  mspeak.resolving_power <= rpe(mspeak.mz_exp,mspeak.ion_charge)]
+        self.filter_by_index(indexes_to_remove)
+
+    def filter_by_max_resolving_power_orbi(self, T, f=1.0):
+        """Filter the mass spectrum by the specified max resolving power.
+
+        Parameters
+        ----------
+        T : float, transient length
+        k : float, instrumental constant, specific to individual Orbitrap instruments
+        f : float, fraction of theoretical resolving power at which to set threshold; default is 1.0, generally for max will want to set > 1
+
+        """
+        from numpy import sqrt, absolute
+        rpe = lambda m, z: (sqrt(4.283885e+13) * T * f) / sqrt(m*absolute(z))
+
+        self.check_mspeaks_warning()
+
+        indexes_to_remove = [index for index, mspeak in enumerate(self.mspeaks) if  mspeak.resolving_power >= rpe(mspeak.mz_exp,mspeak.ion_charge)]
         self.filter_by_index(indexes_to_remove)
 
 
@@ -1160,7 +1268,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         exportMS = HighResMassSpecExport(out_file_path, self)
         exportMS.to_pandas(write_metadata=write_metadata)
 
-    def to_dataframe(self,):
+    def to_dataframe(self,include_isos=False):
         """Return the mass spectrum as a Pandas dataframe.
 
         Returns
@@ -1170,7 +1278,7 @@ class MassSpecBase(MassSpecCalc, KendrickGrouping):
         """
         from corems.mass_spectrum.output.export import HighResMassSpecExport
         exportMS = HighResMassSpecExport(self.filename, self)
-        return exportMS.get_pandas_df()
+        return exportMS.get_pandas_df(include_isos)
 
     def to_json(self):
         """Return the mass spectrum as a JSON file."""

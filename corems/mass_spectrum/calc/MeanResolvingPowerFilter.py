@@ -100,6 +100,8 @@ class MeanResolvingPowerFilter():
         
         if self.mass_spectrum.analyzer == 'ICR':
             tmpdf_ms['crp'] = tmpdf_ms['rp'] * np.sqrt(tmpdf_ms['mz']**2)
+        elif 'Orbitrap' in self.mass_spectrum.analyzer:
+            tmpdf_ms['crp'] = tmpdf_ms['rp'] * np.sqrt(tmpdf_ms['mz'])
         else:
             print('Analyzer type not yet supported.')
         return tmpdf_ms
