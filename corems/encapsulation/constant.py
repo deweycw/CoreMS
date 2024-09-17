@@ -1005,4 +1005,3 @@ class Atoms: #pragma: no cover
                 'No': ['Nobelium', [None]],
                 'Lr': ['Lawrencium', [None]]
                 }
->>>>>>> main
