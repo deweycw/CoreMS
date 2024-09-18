@@ -18,7 +18,7 @@ import datetime
 import clr
 import pandas as pd
 from s3path import S3Path
-
+import gc
 
 from typing import Any, Dict, List, Optional, Tuple
 from corems.encapsulation.constant import Labels
@@ -992,7 +992,20 @@ class ImportMassSpectraThermoMSFileReader(ThermoBaseClass, LC_Calculations):
     Currently only for profile mode data
     Returns MassSpecProfile object
     """
-    
+    def __enter__(self):
+        """Enter the runtime context related to this object."""
+        print("\nOpening RAW file")
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit the runtime context and handle cleanup."""
+        gc.collect()
+        print("Closing RAW file\n")
+        if exc_type is not None:
+            print(f"An exception occurred: {exc_value}")
+        return False  # Reraises exceptions if any (return True if you want to suppress exceptions)
+
+
     def get_orbi_transient_times(self, firstScanNumber = None, lastScanNumber = None):
         """
         Returns a list for transient time targets for all scans, or selected scan range
