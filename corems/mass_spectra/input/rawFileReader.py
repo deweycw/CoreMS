@@ -993,7 +993,6 @@ class ImportMassSpectraThermoMSFileReader(ThermoBaseClass, LC_Calculations):
     Returns MassSpecProfile object
     """
     def __enter__(self):
-        """Enter the runtime context related to this object."""
         print("\nOpening RAW file")
         return self
 
