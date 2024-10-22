@@ -18,7 +18,7 @@ import datetime
 import clr
 import pandas as pd
 from s3path import S3Path
-
+import gc
 
 from typing import Any, Dict, List, Optional, Tuple
 from corems.encapsulation.constant import Labels
@@ -986,14 +986,70 @@ class ImportDataDependentThermoMSFileReader(ThermoBaseClass, LC_Calculations):
             searchmz.join()
             return sorted(searchmz.results.keys())
 
-
 class ImportMassSpectraThermoMSFileReader(ThermoBaseClass, LC_Calculations):
 
     """Collection of methdos to import Summed/Averaged mass spectrum from Thermo's raw file
     Currently only for profile mode data
     Returns MassSpecProfile object
     """
+    def __enter__(self):
+        print("\nOpening RAW file")
+        return self
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        """Exit the runtime context and handle cleanup."""
+        gc.collect()
+        print("Closing RAW file\n")
+        if exc_type is not None:
+            print(f"An exception occurred: {exc_value}")
+        return False  # Reraises exceptions if any (return True if you want to suppress exceptions)
+
+
+    def get_orbi_transient_times(self, firstScanNumber = None, lastScanNumber = None):
+        """
+        Returns a list for transient time targets for all scans, or selected scan range
+        Resolving power and Transient time targets for Tribrid instruments"""
+
+        res_trans_time = {
+            "7500": 0.011,
+            "15000": 0.027,
+            "22500": 0.043, # Ascend 
+            "30000": 0.059,
+            "45000": 0.091, # Ascend 
+            "50000": 0.091,
+            "60000": 0.123,
+            "120000": 0.251,
+            "240000": 0.507,
+            "450000": 1.024, # Fusion Tribrid
+            "480000": 1.019, # Ascend, Exploris 480 
+            "500000": 1.019
+        }
+
+        if firstScanNumber == None:
+            firstScanNumber = self.start_scan
+        if lastScanNumber == None:
+            lastScanNumber = self.end_scan
+
+        transient_time_list = []
+
+        for scan in range(firstScanNumber, lastScanNumber):
+            scan_header = self.get_scan_header(scan)
+
+            if 'Orbitrap Resolution:' in scan_header.keys():
+                rp_key = 'Orbitrap Resolution:'
+            elif 'FT Resolution:' in scan_header.keys():
+                rp_key = 'FT Resolution:'
+
+            rp_target = scan_header[rp_key]
+
+            transient_time = res_trans_time.get(rp_target)
+
+            transient_time_list.append(transient_time)
+
+            # print(transient_time, rp_target)
+
+        return transient_time_list
+    
     def get_icr_transient_times(self):
         """
         Return a list for transient time targets for all scans, or selected scans range

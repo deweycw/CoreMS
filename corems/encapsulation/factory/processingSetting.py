@@ -762,6 +762,8 @@ class MolecularFormulaSearchSettings:
 
     output_min_score: float = 0.1
 
+    iso_sn_penalty_threshold: float = 2.0
+
     # depending on the polarity mode it looks for [M].+ , [M].-
     # query and automatically compile add entry if it doesn't exist
 
@@ -799,6 +801,9 @@ class MolecularFormulaSearchSettings:
 
     mz_error_average: float = 0.0
 
+    # use legacy average mz error score calculation (undetected isos are counted in average)
+    legacy_av_mzerr = True 
+    
     # used_atom_valences: {'C': 4, 'H':1, etc} = dataclasses.field(default_factory=dict)
     used_atom_valences: dict = dataclasses.field(default_factory=dict)
 
