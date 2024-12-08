@@ -23,8 +23,12 @@ patch:
 	
 	@bumpversion patch --allow-dirty
 
+pypi_test:
+	@rm -rf build dist *.egg-info
+	@python3 setup.py sdist
+
 pypi:	
-	
+	@rm -rf build dist *.egg-info
 	@python3 setup.py sdist
 	@twine upload dist/*
 
@@ -68,6 +72,6 @@ fresh-stack-up:
 	@docker-compose up -d   
 	@docker run --rm -v ./data:/home/CoreMS/data corems:local
 
-docs:
+docu:
 	
 	pdoc --output-dir docs --docformat numpy corems

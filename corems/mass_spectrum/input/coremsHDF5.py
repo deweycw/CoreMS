@@ -8,7 +8,6 @@ from s3path import S3Path
 from corems.encapsulation.input.parameter_from_json import _set_dict_data_ms
 from corems.mass_spectrum.input.massList import ReadCoremsMasslist
 from corems.mass_spectrum.factory.MassSpectrumClasses import MassSpecCentroid
-from corems.encapsulation.constant import Labels
 from corems.encapsulation.factory.parameters import default_parameters
 
 
@@ -52,8 +51,6 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
 
         self.scans = list(self.h5pydata.keys())
 
-        print(self.scans)
-
     def load_raw_data(self, mass_spectrum, scan_index=0):
         """
         Load raw data into the mass spectrum object.
@@ -68,13 +65,15 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
 
         scan_label = self.scans[scan_index]
 
-        mz_profile = self.h5pydata[scan_label]["raw_ms"][0]
+        # Check if the "raw_ms" group in the scan is empty
+        if self.h5pydata[scan_label]["raw_ms"].shape is not None:
+            mz_profile = self.h5pydata[scan_label]["raw_ms"][0]
 
-        abundance_profile = self.h5pydata[scan_label]["raw_ms"][1]
+            abundance_profile = self.h5pydata[scan_label]["raw_ms"][1]
 
-        mass_spectrum.mz_exp_profile = mz_profile
+            mass_spectrum.mz_exp_profile = mz_profile
 
-        mass_spectrum.abundance_profile = abundance_profile
+            mass_spectrum.abundance_profile = abundance_profile
 
     def get_mass_spectrum(
         self,
@@ -83,9 +82,12 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
         auto_process=True,
         load_settings=True,
         load_raw=True,
+        load_molecular_formula=True,
     ):
         """
-        Get a mass spectrum object.
+        Instantiate a mass spectrum object from the CoreMS HDF5 file.
+        Note that this always returns a centroid mass spectrum object; functionality for profile and
+        frequency mass spectra is not yet implemented.
 
         Parameters
         ----------
@@ -99,14 +101,36 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
             Whether to load the settings into the mass spectrum object. Default is True.
         load_raw : bool, optional
             Whether to load the raw data into the mass spectrum object. Default is True.
+        load_molecular_formula : bool, optional
+            Whether to load the molecular formula into the mass spectrum object.
+            Default is True.
 
         Returns
         -------
         MassSpecCentroid
             The mass spectrum object.
-        """
 
-        dataframe = self.get_dataframe(scan_number, time_index=time_index)
+        Raises
+        ------
+        ValueError
+            If the CoreMS file is not valid.
+            If the mass spectrum has not been processed and load_molecular_formula is True.
+        """
+        if "mass_spectra" in self.scans[0]:
+            scan_index = self.scans.index("mass_spectra/" + str(scan_number))
+        else:
+            scan_index = self.scans.index(str(scan_number))
+        dataframe = self.get_dataframe(scan_index, time_index=time_index)
+        if dataframe["Molecular Formula"].any() and not dataframe["C"].any():
+            cols = dataframe.columns.tolist()
+            cols = cols[cols.index("Molecular Formula") + 1 :]
+            for index, row in dataframe.iterrows():
+                if row["Molecular Formula"] is not None:
+                    og_formula = row["Molecular Formula"]
+                    for col in cols:
+                        if "col" in og_formula:
+                            # get the digit after the element ("col") in the molecular formula and set it to the dataframe
+                            row[col] = int(og_formula.split(col)[1].split(" ")[0])
 
         if not set(
             ["H/C", "O/C", "Heteroatom Class", "Ion Type", "Is Isotopologue"]
@@ -117,23 +141,40 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
 
         dataframe.rename(columns=self.parameters.header_translate, inplace=True)
 
+        # Cast m/z, and 'Peak Height' to float
+        dataframe["m/z"] = dataframe["m/z"].astype(float)
+        dataframe["Peak Height"] = dataframe["Peak Height"].astype(float)
+
         polarity = dataframe["Ion Charge"].values[0]
 
-        output_parameters = self.get_output_parameters(polarity, scan_index=scan_number)
+        output_parameters = self.get_output_parameters(polarity, scan_index=scan_index)
 
         mass_spec_obj = MassSpecCentroid(
-            dataframe.to_dict(orient="list"), output_parameters
+            dataframe.to_dict(orient="list"), output_parameters, auto_process=False
         )
 
+        if auto_process:
+            # Set the settings on the mass spectrum object to relative abuncance of 0 so all peaks get added
+            mass_spec_obj.settings.noise_threshold_method = "absolute_abundance"
+            mass_spec_obj.settings.noise_threshold_absolute_abundance = 0
+            mass_spec_obj.process_mass_spec()
+
         if load_settings:
+            # Load settings into the mass spectrum object
             self.load_settings(
-                mass_spec_obj, scan_index=scan_number, time_index=time_index
+                mass_spec_obj, scan_index=scan_index, time_index=time_index
             )
 
         if load_raw:
-            self.load_raw_data(mass_spec_obj, scan_index=scan_number)
+            self.load_raw_data(mass_spec_obj, scan_index=scan_index)
 
-        self.add_molecular_formula(mass_spec_obj, dataframe)
+        if load_molecular_formula:
+            if not auto_process:
+                raise ValueError(
+                    "Can only add molecular formula if the mass spectrum has been processed"
+                )
+            else:
+                self.add_molecular_formula(mass_spec_obj, dataframe)
 
         return mass_spec_obj
 
@@ -208,7 +249,15 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
 
             list_dict.append(data_dict)
 
-        return DataFrame(list_dict)
+        # Reorder the columns from low to high "Index" to match the order of the dataframe
+        df = DataFrame(list_dict)
+        # set the "Index" column to int so it sorts correctly
+        df["Index"] = df["Index"].astype(int)
+        df = df.sort_values(by="Index")
+        # Reset index to match the "Index" column
+        df = df.set_index("Index", drop=False)
+
+        return df
 
     def get_time_index_to_pull(self, scan_label, time_index):
         """
@@ -287,7 +336,7 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
         If an attribute string is provided, only the corresponding attribute value is returned.
         If no attribute string is provided, all attribute data in the group is returned as a dictionary.
         """
-
+        # Get index of self.scans where scan_index_str is found
         scan_label = self.scans[scan_index]
 
         index_to_pull = self.get_time_index_to_pull(scan_label, time_index)
@@ -342,7 +391,9 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
             json.loads(self.h5pydata[scan_label]["raw_ms"].attrs[attr_group])[attr_str]
         except KeyError:
             attr_str = attr_str.replace("baseline", "baselise")
-        return json.loads(self.h5pydata[scan_label]["raw_ms"].attrs[attr_group])[attr_str]
+        return json.loads(self.h5pydata[scan_label]["raw_ms"].attrs[attr_group])[
+            attr_str
+        ]
 
     def get_output_parameters(self, polarity, scan_index=0):
         """
@@ -363,22 +414,39 @@ class ReadCoreMSHDF_MassSpectrum(ReadCoremsMasslist):
 
         d_params = default_parameters(self.file_location)
         d_params["filename_path"] = self.file_location
-        d_params["scan_number"] = int(self.scans[scan_index])
-        d_params['polarity'] = self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'polarity')
-        d_params['rt'] =     self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'rt')
-        
-        d_params['tic'] =  self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'tic')
-        
-        d_params['mobility_scan'] =    self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'mobility_scan')
-        d_params['mobility_rt'] =     self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'mobility_rt')
-        d_params['Aterm'] =  self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'Aterm')
-        d_params['Bterm'] =  self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'Bterm')
-        d_params['Cterm'] = self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'Cterm')
-        d_params['baseline_noise'] = self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'baseline_noise')
-        d_params['baseline_noise_std'] = self.get_raw_data_attr_data( scan_index, 'MassSpecAttrs', 'baseline_noise_std')
-        
-        d_params['analyzer'] = self.get_high_level_attr_data('analyzer')
-        d_params['instrument_label'] = self.get_high_level_attr_data('instrument_label')
-        d_params['sample_name'] = self.get_high_level_attr_data('sample_name')
+        d_params["polarity"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "polarity"
+        )
+        d_params["rt"] = self.get_raw_data_attr_data(scan_index, "MassSpecAttrs", "rt")
+
+        d_params["tic"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "tic"
+        )
+
+        d_params["mobility_scan"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "mobility_scan"
+        )
+        d_params["mobility_rt"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "mobility_rt"
+        )
+        d_params["Aterm"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "Aterm"
+        )
+        d_params["Bterm"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "Bterm"
+        )
+        d_params["Cterm"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "Cterm"
+        )
+        d_params["baseline_noise"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "baseline_noise"
+        )
+        d_params["baseline_noise_std"] = self.get_raw_data_attr_data(
+            scan_index, "MassSpecAttrs", "baseline_noise_std"
+        )
+
+        d_params["analyzer"] = self.get_high_level_attr_data("analyzer")
+        d_params["instrument_label"] = self.get_high_level_attr_data("instrument_label")
+        d_params["sample_name"] = self.get_high_level_attr_data("sample_name")
 
         return d_params

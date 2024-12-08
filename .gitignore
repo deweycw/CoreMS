@@ -83,3 +83,5 @@ r00*/
 !ext_lib/dotnet/*.xml
 ext_lib/
 *.egg*
+config.yaml
+*.token
