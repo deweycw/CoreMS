@@ -169,6 +169,8 @@ class SearchMolecularFormulas:
             if self.first_hit:
                 if ms_peak.is_assigned:
                     continue
+            if self.mass_spectrum_obj.molecular_search_settings.sn_min_for_assignment > ms_peak.signal_to_noise:
+                continue
 
             ms_peak_indexes = search_molfrom.find_formulas(
                 get_formulas(),

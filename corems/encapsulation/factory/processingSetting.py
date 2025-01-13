@@ -928,6 +928,9 @@ class MolecularFormulaSearchSettings:
     # used_atom_valences: {'C': 4, 'H':1, etc} = dataclasses.field(default_factory=dict)
     used_atom_valences: dict = dataclasses.field(default_factory=dict)
 
+    # used to allow different search settings for low and high sn peaks 
+    sn_min_for_assignment: float = 0.0
+
     def __post_init__(self):
         self.url_database = os.getenv(
             "COREMS_DATABASE_URL", "sqlite:///db/molformula.db"
