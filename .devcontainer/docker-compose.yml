@@ -25,7 +25,7 @@ services:
       context: ../
       dockerfile: ./.devcontainer/Dockerfile
     
-    network_mode: service:molformdb
+    #network_mode: service:molformdb
     
     volumes:
       - type: bind
