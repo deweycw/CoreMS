@@ -816,7 +816,10 @@ class MolecularFormulaSearchSettings:
         m/z error average. Default is 0.0.
     used_atom_valences : dict, optional
         Dictionary of atoms and valences. Default is {'C': 4, '13C': 4, 'H': 1, 'O': 2, '18O': 2, 'N': 3, 'S': 2, '34S': 2, 'P': 3, 'Cl': 1, '37Cl': 1, 'Br': 1, 'Na': 1, 'F': 1, 'K': 0}.
+    verbose_processing: bool, optional
+        If True, print verbose processing information. Default is True.
     """
+    verbose_processing: bool = True    
 
     use_isotopologue_filter: bool = False
 
@@ -932,9 +935,10 @@ class MolecularFormulaSearchSettings:
     sn_min_for_assignment: float = 0.0
 
     def __post_init__(self):
-        self.url_database = os.getenv(
+        if not self.url_database or self.url_database == "":
+            self.url_database = os.getenv(
             "COREMS_DATABASE_URL", "sqlite:///db/molformula.db"
-        )
+            )
         # enforce datatype
         for field in dataclasses.fields(self):
             value = getattr(self, field.name)
