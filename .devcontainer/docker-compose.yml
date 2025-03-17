@@ -32,8 +32,8 @@ services:
         source: ../
         target: /default/workspaces/CoreMS
       - type: bind
-        source: /home/cdewey/Dropbox #/Users/christiandewey/Library/CloudStorage/Dropbox
-        target: /default/workspaces/Dropbox
+        source: /home/cdewey/Cloud/Dropbox #/Users/christiandewey/Library/CloudStorage/Dropbox
+        target: /default/workspaces/CoreMS/cdewey
 
   
 
