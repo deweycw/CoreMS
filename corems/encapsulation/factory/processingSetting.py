@@ -869,7 +869,7 @@ class MolecularFormulaSearchSettings:
     # look for close shell ions [M + Adduct]+ only considers metal set in the list adduct_atoms
     adduct_atoms_neg: tuple = ("Cl", "Br")
 
-    adduct_atoms_pos: tuple = ("Na", "K")
+    adducts_atoms_pos: tuple = ("Na", "K")
 
     score_methods: tuple = (
         "S_P_lowest_error",

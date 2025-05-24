@@ -263,11 +263,19 @@ class MolecularFormulaLink(Base):
     @hybrid_method
     def _adduct_mz(self, ion_charge, adduct_atom):
         """Returns the m/z of the adduct ion as a float."""
-        return (
-            self.mass
-            + (Atoms.atomic_masses.get(adduct_atom))
-            + (ion_charge * -1 * Atoms.electron_mass)
-        ) / abs(ion_charge)
+        if adduct_atom == 'NH4':
+            return (
+                self.mass
+                + (Atoms.atomic_masses.get('N'))
+                + (4 * Atoms.atomic_masses.get('N')) # type: ignore
+                + (ion_charge * -1 * Atoms.electron_mass)
+            ) / abs(ion_charge)
+        else:
+            return (
+                self.mass
+                + (Atoms.atomic_masses.get(adduct_atom))
+                + (ion_charge * -1 * Atoms.electron_mass)
+            ) / abs(ion_charge)
 
     @hybrid_method
     def _protonated_mz(self, ion_charge):

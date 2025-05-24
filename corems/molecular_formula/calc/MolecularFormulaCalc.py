@@ -120,11 +120,20 @@ class MolecularFormulaCalc:
             The ion charge.
 
         """
-        return (
-            self.neutral_mass
-            + (Atoms.atomic_masses.get(adduct_atom))
-            + (ion_charge * -1 * Atoms.electron_mass)
-        ) / abs(ion_charge)
+        if adduct_atom == 'NH4':
+            adduct_mz_ = (
+                self.neutral_mass
+                + (4 * Atoms.atomic_masses.get('H')) # type: ignore
+                + (Atoms.atomic_masses.get('N'))
+                + (ion_charge * -1 * Atoms.electron_mass)
+            ) / abs(ion_charge)
+        else:
+            adduct_mz_ = (
+                self.neutral_mass
+                + (Atoms.atomic_masses.get(adduct_atom))
+                + (ion_charge * -1 * Atoms.electron_mass)
+            ) / abs(ion_charge)            
+        return adduct_mz_
 
     def _protonated_mz(self, ion_charge):
         """Get the m/z value of a protonated or deprotonated ion version of the molecular formula.

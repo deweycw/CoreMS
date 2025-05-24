@@ -191,10 +191,18 @@ class MolecularFormulaBase(MolecularFormulaCalc):
             self._d_molecular_formula[Labels.ion_type] = ion_type
 
         if adduct_atom:
-            if adduct_atom in self._d_molecular_formula:
-                self._d_molecular_formula[adduct_atom] += 1
+            if adduct_atom == 'NH4':
+                print('ammonium dict')
+                if 'N' in self._d_molecular_formula:
+                    self._d_molecular_formula['N'] += 1
+                else: 
+                    self._d_molecular_formula['N'] = 1
+                self._d_molecular_formula['H'] += 4
             else:
-                self._d_molecular_formula[adduct_atom] = 1
+                if adduct_atom in self._d_molecular_formula:
+                    self._d_molecular_formula[adduct_atom] += 1
+                else:
+                    self._d_molecular_formula[adduct_atom] = 1
         self.adduct_atom = adduct_atom
 
     def _from_list(self, molecular_formula_list, ion_type, adduct_atom):
@@ -209,12 +217,22 @@ class MolecularFormulaBase(MolecularFormulaCalc):
                 self._d_molecular_formula[atoms_label] = int(atoms_count)
 
         self._d_molecular_formula[Labels.ion_type] = ion_type
+
         if adduct_atom:
-            self.adduct_atom = adduct_atom
-            if adduct_atom in self._d_molecular_formula:
-                self._d_molecular_formula[adduct_atom] += 1
+            if adduct_atom == 'NH4':
+                print('ammonium list')
+                self.adduct_atom = adduct_atom
+                if 'N' in self._d_molecular_formula:
+                    self._d_molecular_formula['N'] += 1
+                else:
+                    self._d_molecular_formula['N'] = 1
+                self._d_molecular_formula['H'] += 4
             else:
-                self._d_molecular_formula[adduct_atom] = 1
+                self.adduct_atom = adduct_atom
+                if adduct_atom in self._d_molecular_formula:
+                    self._d_molecular_formula[adduct_atom] += 1
+                else:
+                    self._d_molecular_formula[adduct_atom] = 1
         else:
             self.adduct_atom = None
 
@@ -429,13 +447,23 @@ class MolecularFormulaBase(MolecularFormulaCalc):
                 if key != Labels.ion_type
             ]
         else:
-            temp_dict = self._d_molecular_formula.copy()
-            temp_dict[self.adduct_atom] -= 1
-            return [
-                key
-                for key, val in temp_dict.items()
-                if key != Labels.ion_type and val > 0
-            ]
+            if self.adduct_atom == 'NH4':
+                temp_dict = self._d_molecular_formula.copy()
+                temp_dict['N'] -= 1
+                temp_dict['H'] -= 4
+                return [
+                    key
+                    for key, val in temp_dict.items()
+                    if key != Labels.ion_type and val > 0
+                ]   
+            else:
+                temp_dict = self._d_molecular_formula.copy()
+                temp_dict[self.adduct_atom] -= 1
+                return [
+                    key
+                    for key, val in temp_dict.items()
+                    if key != Labels.ion_type and val > 0
+                ]
 
     @property
     def confidence_score(self):
@@ -554,16 +582,25 @@ class MolecularFormulaBase(MolecularFormulaCalc):
                 mol_form_dict = self._d_molecular_formula
             else:
                 mol_form_dict = self._d_molecular_formula.copy()
-                if self.adduct_atom not in mol_form_dict.keys():
-                    raise Exception("Adduct atom not found in molecular formula dict")
-                mol_form_dict[self.adduct_atom] -= 1
-                mol_form_dict = {
-                    key: val for key, val in mol_form_dict.items() if val != 0
-                }
+                if self.adduct_atom == 'NH4':
+                    if 'N' not in mol_form_dict.keys():
+                        raise Exception("NH4 adduct not found in molecular formula dict")
+                    mol_form_dict['N'] -= 1
+                    mol_form_dict['H'] -= 4
+                    mol_form_dict = {
+                        key: val for key, val in mol_form_dict.items() if val != 0
+                    }
+                else:
+                    if self.adduct_atom not in mol_form_dict.keys():
+                        raise Exception("Adduct atom not found in molecular formula dict")
+                    mol_form_dict[self.adduct_atom] -= 1
+                    mol_form_dict = {
+                        key: val for key, val in mol_form_dict.items() if val != 0
+                    }
             formula_srt = ""
             for atom in Atoms.atoms_order:
                 if atom in mol_form_dict.keys():
-                    formula_srt += atom + str(int(mol_form_dict.get(atom))) + " "
+                    formula_srt += atom + str(int(mol_form_dict.get(atom))) + " " # type: ignore
             return formula_srt.strip()
 
         else:
@@ -735,20 +772,36 @@ class MolecularFormulaIsotopologue(MolecularFormulaBase):
 
         if ion_type == Labels.adduct_ion:
             adduct_atom_int = None
-            if adduct_atom in _d_molecular_formula.keys():
-                adduct_atom_int = adduct_atom
+            if adduct_atom == 'NH4':
+                if 'N' in _d_molecular_formula.keys():
+                    adduct_atom_int = adduct_atom
+                else:
+                    # Check to see if adduct_atom should actually be an isotope of the adduct atom   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    for adduct_iso in Atoms.isotopes.get('N')[1]:
+                        if adduct_iso in _d_molecular_formula.keys():
+                            adduct_atom_int = adduct_iso
             else:
-                # Check to see if adduct_atom should actually be an isotope of the adduct atom
-                for adduct_iso in Atoms.isotopes.get(adduct_atom)[1]:
-                    if adduct_iso in _d_molecular_formula.keys():
-                        adduct_atom_int = adduct_iso
+                if adduct_atom in _d_molecular_formula.keys():
+                    adduct_atom_int = adduct_atom
+                else:
+                    # Check to see if adduct_atom should actually be an isotope of the adduct atom
+                    for adduct_iso in Atoms.isotopes.get(adduct_atom)[1]:
+                        if adduct_iso in _d_molecular_formula.keys():
+                            adduct_atom_int = adduct_iso
             adduct_atom = adduct_atom_int
             if adduct_atom is None:
                 raise Exception("adduct_atom is required for adduct ion")
-            _d_molecular_formula[adduct_atom] -= 1
-            _d_molecular_formula = {
-                key: val for key, val in _d_molecular_formula.items() if val != 0
-            }
+            if adduct_atom == 'NH4':
+                _d_molecular_formula['N'] -= 1
+                _d_molecular_formula['H'] -= 4
+                _d_molecular_formula = {
+                    key: val for key, val in _d_molecular_formula.items() if val != 0
+                }
+            else:
+                _d_molecular_formula[adduct_atom] -= 1
+                _d_molecular_formula = {
+                    key: val for key, val in _d_molecular_formula.items() if val != 0
+                }
 
         super().__init__(
             molecular_formula=_d_molecular_formula,
