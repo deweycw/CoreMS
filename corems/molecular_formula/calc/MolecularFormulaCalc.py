@@ -120,6 +120,7 @@ class MolecularFormulaCalc:
             The ion charge.
 
         """
+        self._adduct_atom = adduct_atom
         if adduct_atom == 'NH4':
             adduct_mz_ = (
                 self.neutral_mass
@@ -679,6 +680,12 @@ class MolecularFormulaCalc:
         for atom in self._d_molecular_formula.keys():
             if atom != Labels.ion_type:
                 n_atom = int(self._d_molecular_formula.get(atom))
+
+                if (self.ion_type == Labels.adduct_ion) and (self.adduct_atom == 'NH4'):
+                    if atom == 'H':
+                        n_atom -= 4
+                    elif atom == 'N':
+                        n_atom -= 1
 
                 clean_atom = "".join([i for i in atom if not i.isdigit()])
 

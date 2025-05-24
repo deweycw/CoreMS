@@ -693,9 +693,20 @@ class HighResMassSpecExport(Thread):
                 atoms_order_list = self.atoms_order_list
 
             for atom in atoms_order_list:
+                
                 if atom in formula_dict.keys():
-                    dict_result[atom] = formula_dict.get(atom)
-
+                    if mformula.adduct_atom == 'NH4':
+                        if atom == 'N':
+                            if formula_dict.get('N') - 1 == 0:
+                                dict_result['N'] = None
+                            else:
+                                dict_result['N'] = formula_dict.get('N') - 1
+                        elif atom == 'H':
+                            dict_result['H'] = formula_dict.get('H') - 4
+                        else:
+                            dict_result[atom] = formula_dict.get(atom)
+                    else:
+                        dict_result[atom] = formula_dict.get(atom)
             if len(mformula.expected_isotopologues) > 0:
                 i=1
                 for e_iso in mformula.expected_isotopologues:

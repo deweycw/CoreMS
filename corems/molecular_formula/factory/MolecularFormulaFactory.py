@@ -192,7 +192,6 @@ class MolecularFormulaBase(MolecularFormulaCalc):
 
         if adduct_atom:
             if adduct_atom == 'NH4':
-                print('ammonium dict')
                 if 'N' in self._d_molecular_formula:
                     self._d_molecular_formula['N'] += 1
                 else: 
@@ -220,7 +219,6 @@ class MolecularFormulaBase(MolecularFormulaCalc):
 
         if adduct_atom:
             if adduct_atom == 'NH4':
-                print('ammonium list')
                 self.adduct_atom = adduct_atom
                 if 'N' in self._d_molecular_formula:
                     self._d_molecular_formula['N'] += 1
@@ -340,13 +338,23 @@ class MolecularFormulaBase(MolecularFormulaCalc):
                 if key in self._d_molecular_formula.keys()
             ]
         )
-        Hs = sum(
-            [
-                self._d_molecular_formula.get(key)
-                for key in ["H"] + Atoms.isotopes["H"][1]
-                if key in self._d_molecular_formula.keys()
-            ]
-        )
+
+        if self.adduct_atom == 'NH4':
+            Hs = sum(
+                [
+                    self._d_molecular_formula.get(key)
+                    for key in ["H"] + Atoms.isotopes["H"][1]
+                    if key in self._d_molecular_formula.keys()
+                ]
+            ) - 4
+        else:
+            Hs = sum(
+                [
+                    self._d_molecular_formula.get(key)
+                    for key in ["H"] + Atoms.isotopes["H"][1]
+                    if key in self._d_molecular_formula.keys()
+                ]
+            )
         return Hs / Cs
 
     @property
@@ -451,6 +459,7 @@ class MolecularFormulaBase(MolecularFormulaCalc):
                 temp_dict = self._d_molecular_formula.copy()
                 temp_dict['N'] -= 1
                 temp_dict['H'] -= 4
+
                 return [
                     key
                     for key, val in temp_dict.items()

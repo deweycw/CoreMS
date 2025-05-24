@@ -267,7 +267,7 @@ class MolecularFormulaLink(Base):
             return (
                 self.mass
                 + (Atoms.atomic_masses.get('N'))
-                + (4 * Atoms.atomic_masses.get('N')) # type: ignore
+                + (4 * Atoms.atomic_masses.get('H')) # type: ignore
                 + (ion_charge * -1 * Atoms.electron_mass)
             ) / abs(ion_charge)
         else:
