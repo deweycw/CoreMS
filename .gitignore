@@ -1,87 +1,177 @@
-cdewey/*
-env*/
-venv/ 
-test_env/ 
-venv310/
-venvwsl/
-tmp_data/ 
-tmp_docs/
-.pyc  
-.pyo
-*.hdf5
-*.d  
-tmp_data/
-*.so  
-*.pkl  
-*.ems
-*.sqlite
-pyvenv.cfg  
-.DS_Store 
-__pycache__/  
-res/  
-doc/coverage_html_report
-corems.egg-info/  
-corems/libs/  
-core_env/  
-molformula-data/
-.vscode/  
-.pytest_cache/
-.vs/
-res/data/
-.eggs/
-dist/
+# =============================================================================
+# CoreMS .gitignore
+# =============================================================================
+
+# =============================================================================
+# Python
+# =============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.pyo
+*.pyc
+
+# Distribution / packaging
 build/
-.ipynb_checkpoints/
+dist/
+*.egg
+*.egg-info/
+.eggs/
+*.whl
+MANIFEST
+
+# Virtual environments
+env/
+venv/
+.venv/
+venv*/
+env*/
+core_env/
+test_env/
+pyvenv.cfg
+
+# =============================================================================
+# IDE / Editors
+# =============================================================================
+.vscode/
+.vs/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# =============================================================================
+# Testing / Coverage
+# =============================================================================
 .pytest_cache/
 .coverage
-neg_esi_srfa_1ppm_test.csv
-neg_esi_srfa_1ppm_test.xlsx
-tests/tests_data/ftms/ESFA_100k_9767-13548_chB.A_re_pc_Averaged1min.h5
-NEG_ESI_SRFA_CoreMS.csv
-NEG_ESI_SRFA_CoreMS.hdf5
-NEG_ESI_SRFA_CoreMS.json
-NEG_ESI_SRFA_CoreMS.xlsx
-random.hdf5
-storage.h5
-NEG_ESI_SRFA_CoreMS.corems/NEG_ESI_SRFA_CoreMS_scan0.csv
-NEG_ESI_SRFA_CoreMS.corems/NEG_ESI_SRFA_CoreMS_scan0.json
-NEG_ESI_SRFA_CoreMS.corems/NEG_ESI_SRFA_CoreMS_scan0.xlsx
-Chlorophenol Red C19 H12 Cl2 O5 S1.csv
-NEG_ESI_SRFA_CoreMS_prob_score.csv
-NEG_ESI_SRFA_CoreMS_prob_score.json
-test_aggregation.csv
-test.csv
-test.json
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.prof
+*.prof.log
 mprofile_*
-tests/tests_data/ftms/20190709_WK_CADY_Auto_S16_H1_Post_O5_1_01_36.txt
-topics.prof
-di-fticr.prof
-.pypirc
-di-fticr.prof.log
-gc-ms.prof
-di-fticr-di.prof
-di-fticr-transient.prof
-test_LF.csv
-test_LF.png
-test_fig.png
-Loss_finder.csv
-results/
-.devcontainer/devcontainer.json
-db/20210203_Peak212_Neg_HR.raw
-db/PNNLMetV20201027.MSL
-data/ftms_nom_data_products.json
-data/ftms_nom_metadata_products.json
-data/ftms_nom_nmdc_data.csv
-data/nom_failed_files.json
-db/molformula.db
-.venv/
-clr_test/
+
+# =============================================================================
+# Jupyter / IPython
+# =============================================================================
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+profile_default/
+ipython_config.py
+
+# =============================================================================
+# Documentation
+# =============================================================================
+docs/_build/
+doc/coverage_html_report/
+tmp_docs/
+site/
+
+# =============================================================================
+# OS-specific
+# =============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# =============================================================================
+# Data files (mass spec, databases, etc.)
+# =============================================================================
+*.hdf5
+*.h5
+*.sqlite
+*.db
+*.pkl
+*.pickle
+*.ems
+*.raw
+*.RAW
+*.d/
+*.mzML
+*.mzXML
+
+# =============================================================================
+# CoreMS specific
+# =============================================================================
+# Local development directory
+cdewey/
 dev/
-r00*/
+
+# Database and data directories
+molformula-data/
+tmp_data/
+res/
+res/data/
+results/
+data/
+
+# External libraries (except specific DLLs)
+ext_lib/
 !ext_lib/ChemstationMSFileReader.*
 !ext_lib/dotnet/*.dll
 !ext_lib/dotnet/*.xml
-ext_lib/
-*.egg*
-config.yaml
+
+# CoreMS output files
+*.corems/
+NEG_ESI_SRFA_CoreMS*
+test*.csv
+test*.json
+test*.xlsx
+test*.png
 *.token
+
+# Profiling output
+topics.prof
+di-fticr*.prof
+gc-ms.prof
+
+# Configuration (local)
+config.yaml
+.pypirc
+
+# Raw data files in db/
+db/*.raw
+db/*.MSL
+db/*.db
+
+# =============================================================================
+# Test output files
+# =============================================================================
+neg_esi_srfa_1ppm_test.*
+random.hdf5
+storage.h5
+Chlorophenol*.csv
+Loss_finder.csv
+
+# =============================================================================
+# Docker / Containers
+# =============================================================================
+.devcontainer/devcontainer.json
+
+# =============================================================================
+# Miscellaneous
+# =============================================================================
+*.log
+*.tmp
+*.temp
+*.bak
+r00*/
+clr_test/
+
+# =============================================================================
+# Claude Code
+# =============================================================================
+.claude/
